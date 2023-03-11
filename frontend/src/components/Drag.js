@@ -15,7 +15,7 @@ function Drag({ Iden, name, draggable, wait }) {
   }));
 
   return (
-    <div
+    <div className="bg-black "
       style={{
         backgroundColor: "black",
         color: "white",

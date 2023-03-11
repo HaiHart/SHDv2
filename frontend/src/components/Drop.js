@@ -1,6 +1,7 @@
 import React from "react";
 import { useDrop } from "react-dnd";
 import Drag from "./Drag";
+import { Flip } from "../wailsjs/go/main/Basic";
 
 function DropZone({ items, id}) {
   const [{ isOver }, drop] = useDrop(() => ({
@@ -16,7 +17,7 @@ function DropZone({ items, id}) {
       return;
     }
 
-    window.go.main.Basic.Flip(String(item), Number(id)).then((data) => {
+    Flip(String(item), Number(id)).then((data) => {
     });
 
     return;
@@ -30,8 +31,8 @@ function DropZone({ items, id}) {
         border: isOver
           ? "1rem solid rgba(255, 0, 0, 0.05)"
           : "1rem solid yellow",
-        width: "3rem",
-        height: "3rem",
+        width: "5rem",
+        height: "5rem",
         color: "blue",
         visibility: "visible",
         alignSelf: "flex-start",

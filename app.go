@@ -216,7 +216,7 @@ func (b *Basic) getRV(index int) *Container {
 
 func (b *Basic) startup(ctx context.Context) {
 	b.ctx = ctx
-
+	rt.EventsEmit(b.ctx, "List", b)
 	go func() {
 		var wg sync.WaitGroup
 		go logFunc()

@@ -12,12 +12,12 @@ export default function Log({ list }) {
   };
 
   return (
-    <div
+    <div className="border border-primary rounded "
       style={{
-        width: "19%",
-        border: "0.3rem solid yellow",
-        height: "100%",
-        overflowY: "scroll",
+        // width: "19%",
+        // border: "0.3rem solid yellow",
+        height: "900px",
+        // overflowY: "scroll",
         overflowX: "scroll",
       }}
     >
@@ -29,6 +29,7 @@ export default function Log({ list }) {
           flex: "1",
           transformOrigin: "0 0",
           transform: `scale(${scale})`,
+          overflowY: "scroll",
         }}
       >
         {[...list].reverse().map((ele) => {

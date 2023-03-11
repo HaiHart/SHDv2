@@ -44,6 +44,7 @@ func main() {
 		Bind: []interface{}{
 			basic,
 		},
+		WindowStartState: options.Maximised,
 		// Windows platform specific options
 		Windows: &windows.Options{
 			WebviewIsTransparent: false,

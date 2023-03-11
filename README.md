@@ -18,4 +18,4 @@ To run in live development mode, run `wails dev` in the project directory. The f
 
 ## Known Issues
 
-Sadly I still not found a way to correclty run frontend in development mode so the only solution is to rebuild at every frontend change (if you got a way open a pull request thanks)
+add the wailsjs file on gen by cli to inside src dir for this to run on change to wails function

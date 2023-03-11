@@ -1,6 +1,7 @@
 import React from "react";
 import { useDrop } from "react-dnd";
 import Drag from "./Drag";
+import { Flip } from "../wailsjs/go/main/Basic";
 
 function WaitZone({ items }) {
   // const list = items.filter(ele=>ele.Placed<0)
@@ -16,7 +17,7 @@ function WaitZone({ items }) {
     if (item < 0) {
       return;
     }
-    window.go.main.Basic.Flip(String(item), Number(-1)).then((data) => {
+    Flip(String(item), Number(-1)).then((data) => {
     });
 
     return;
