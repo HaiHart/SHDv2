@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 // import * as Wails from "@wailsapp/runtime";
-import * as Wails from "../../wailsjs/runtime/runtime.js";
+import * as Wails from "../wailsjs/runtime";
 import WaitZone from "./Wait";
 import Log from "./Log";
 import DragSight from "./DragSight";

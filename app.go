@@ -146,12 +146,26 @@ func (b *Basic) createServerChannel() error {
 		b.streamConn = stream
 		for {
 			in, err := stream.Recv()
-			// if err == io.EOF {
-			// 	close(waitc)
-			// 	return
-			// }
+			if err == io.EOF {
+				stream, err = b.client.MoveContainer(b.ctx)
+				var wait = 1
+				for err != nil {
+					time.Sleep(time.Duration(wait) * time.Second)
+					stream, err = b.client.MoveContainer(b.ctx)
+					if wait < 100 {
+						wait = wait * 2
+					}
+				}
+
+				b.streamConn = stream
+				continue
+			}
 			if err != nil {
 				fmt.Println(err)
+			}
+			if in.Err != "None" {
+				b.FetchFromServer()
+				continue
 			}
 			fmt.Println(in.List[0].Id, int(in.List[0].NewPlace))
 			b.Change(in.List[0].Id, int(in.List[0].NewPlace))
@@ -212,9 +226,20 @@ func (b *Basic) startup(ctx context.Context) {
 				select {
 				case event := <-b.signal:
 					b.Log = append(b.Log, event)
-					rt.EventsEmit(b.ctx,"List", b)
+					rt.EventsEmit(b.ctx, "List", b)
 				}
 
+			}
+		}()
+		go func() {
+			var group errgroup.Group
+			b.connectServer()
+			group.Go(b.FetchFromServer)
+			group.Go(b.createServerChannel)
+			err := group.Wait()
+			if err != nil {
+				fmt.Println(err)
+				return
 			}
 		}()
 		wg.Wait()
@@ -375,11 +400,11 @@ func (b *Basic) GetImageFile() interface{} {
 	return rv
 }
 
-//go:embed frontend/build/static/js/main.js
-var js string
+// //go:embed frontend/build/static/js/main.js
+// var js string
 
-//go:embed frontend/build/static/css/main.css
-var css string
+// //go:embed frontend/build/static/css/main.css
+// var css string
 
 func imgLoader(w http.ResponseWriter, r *http.Request) {
 	var Path = "./" + "image.jpg"
@@ -442,56 +467,46 @@ func RunServer(wg *sync.WaitGroup) {
 	}
 }
 
-func runWails() {
+// func runWails() {
 
-	app := wails.CreateApp(&wails.AppConfig{
-		Width:     1100,
-		Height:    800,
-		Resizable: true,
-		Title:     "DockSetter",
-		JS:        js,
-		CSS:       css,
-		Colour:    "#131313",
-	})
-	Bench := &Basic{
-		Counter: 0,
-		Rv: []Container{{
-			Iden:   1,
-			Name:   "1",
-			Placed: -1,
-			Key:    0,
-		},
-			{
-				Iden:   2,
-				Name:   "2",
-				Placed: -1,
-				Key:    1,
-			},
-			{
-				Iden:   3,
-				Name:   "3",
-				Placed: -1,
-				Key:    2,
-			}},
-		signal:       make(chan string),
-		Log:          make([]string, 1),
-		ctx:          context.Background(),
-		storeCommand: make(chan pb.Pack),
-	}
-	go func() {
-		var group errgroup.Group
-		Bench.connectServer()
-		group.Go(Bench.FetchFromServer)
-		group.Go(Bench.createServerChannel)
-		err := group.Wait()
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-	}()
-	app.Bind(Bench)
-	app.Run()
-}
+// 	app := wails.CreateApp(&wails.AppConfig{
+// 		Width:     1100,
+// 		Height:    800,
+// 		Resizable: true,
+// 		Title:     "DockSetter",
+// 		JS:        js,
+// 		CSS:       css,
+// 		Colour:    "#131313",
+// 	})
+// 	Bench := &Basic{
+// 		Counter: 0,
+// 		Rv: []Container{{
+// 			Iden:   1,
+// 			Name:   "1",
+// 			Placed: -1,
+// 			Key:    0,
+// 		},
+// 			{
+// 				Iden:   2,
+// 				Name:   "2",
+// 				Placed: -1,
+// 				Key:    1,
+// 			},
+// 			{
+// 				Iden:   3,
+// 				Name:   "3",
+// 				Placed: -1,
+// 				Key:    2,
+// 			}},
+// 		signal:       make(chan string),
+// 		Log:          make([]string, 1),
+// 		ctx:          context.Background(),
+// 		storeCommand: make(chan pb.Pack),
+// 	}
+//
+// 	app.Bind(Bench)
+// 	app.Run()
+// }
 
 func NewBasic() *Basic {
 	return &Basic{
@@ -526,7 +541,6 @@ func NewBasi() {
 
 	go logFunc()
 	go RunServer(&wg)
-	runWails()
 
 	wg.Wait()
 	defer fmt.Println("DONE")
