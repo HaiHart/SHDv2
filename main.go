@@ -3,7 +3,6 @@ package main
 import (
 	"embed"
 	"log"
-
 	"github.com/wailsapp/wails/v2/pkg/options/mac"
 
 	"github.com/wailsapp/wails/v2"
@@ -21,11 +20,12 @@ var icon []byte
 func main() {
 	// Create an instance of the app structure
 	// app := NewApp()
-	basic:=NewBasic()
+	basic:= NewBasic()
 
 	// var wg sync.WaitGroup
 	// go logFunc()
 	// go RunServer(&wg)
+	
 	// Create application with options
 	err := wails.Run(&options.App{
 		Title:  "react-template",

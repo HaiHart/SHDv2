@@ -101,7 +101,7 @@ function DragDrop() {
       }
     >
       <div className="row">
-        <div className="col-10"> 
+        <div className="col-10">
           <div
             className="row"
             style={{
@@ -262,17 +262,17 @@ function DragDrop() {
                 >
                   <button
                     type="button"
-                    className="btn btn-primary input-group-append"
+                    className="btn btn-primary input-group-prepend"
                     onClick={(e) => {
                       e.preventDefault();
                       setPos({
                         y: pos.y,
-                        x: pos.x + 1,
+                        x: pos.x - 1,
                         path: pos.path,
                       });
                     }}
                   >
-                    right
+                    left
                   </button>
                   <input
                     className="form-control"
@@ -292,17 +292,17 @@ function DragDrop() {
                   />
                   <button
                     type="button"
-                    className="btn btn-primary input-group-prepend"
+                    className="btn btn-primary input-group-append"
                     onClick={(e) => {
                       e.preventDefault();
                       setPos({
                         y: pos.y,
-                        x: pos.x - 1,
+                        x: pos.x + 1,
                         path: pos.path,
                       });
                     }}
                   >
-                    left
+                    right
                   </button>
                 </div>
                 <div>
@@ -352,7 +352,7 @@ function DragDrop() {
                     <button
                       type="button"
                       className="btn btn-primary col mb-2"
-                      onClick={()=>{
+                      onClick={() => {
                         Flip("yes", Number(0)).then((data) => {
                           setData(data);
                         });
@@ -376,7 +376,7 @@ function DragDrop() {
             </div>
           </div>
         </div>
-        <div className="col-2 h-100" >
+        <div className="col-2 h-100">
           <Log list={dat.Log} />
         </div>
       </div>

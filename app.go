@@ -133,6 +133,7 @@ func (b *Basic) FetchFromServer() error {
 	for _, v := range ShipList.Log {
 		b.Log = append(b.Log, v)
 	}
+	rt.EventsEmit(b.ctx, "List", b)
 	return nil
 }
 
@@ -216,7 +217,6 @@ func (b *Basic) getRV(index int) *Container {
 
 func (b *Basic) startup(ctx context.Context) {
 	b.ctx = ctx
-	rt.EventsEmit(b.ctx, "List", b)
 	go func() {
 		var wg sync.WaitGroup
 		go logFunc()
@@ -242,6 +242,17 @@ func (b *Basic) startup(ctx context.Context) {
 				return
 			}
 		}()
+		// go func() {
+		// 	var group errgroup.Group
+		// 	b.connectServer()
+		// 	group.Go(b.FetchFromServer)
+		// 	group.Go(b.createServerChannel)
+		// 	err := group.Wait()
+		// 	if err != nil {
+		// 		fmt.Println(err)
+		// 		return
+		// 	}
+		// }()
 		wg.Wait()
 	}()
 
