@@ -74,15 +74,25 @@ func logFunc() {
 }
 
 type Position struct {
+	Col  uint16  `json:"col"`
+	Row  uint16  `json:"row"`
 	XPos float32 `json:"x"`
 	YPos float32 `json:"y"`
+	ToIP string  `json:"IP"`
 }
 
+type detail struct {
+	From   string
+	AtTime string
+	By     string
+	Owner  string
+}
 type Container struct {
 	Name   string
 	Placed int
 	Iden   int
 	Key    int
+	Detail detail
 }
 
 type Command struct {
@@ -97,6 +107,7 @@ type Basic struct {
 	Rv           []Container
 	Log          []string
 	signal       chan string
+	IP           string
 	client       pb.ComClient
 	ctx          context.Context
 	cancle       context.CancelFunc
@@ -107,7 +118,8 @@ type Basic struct {
 func (b *Basic) connectServer() {
 	var opts []grpc.DialOption
 	opts = append(opts, grpc.WithTransportCredentials(insecure.NewCredentials()))
-	conn, err := grpc.Dial(fmt.Sprintf("localhost:%v", 8080), opts...)
+	// conn, err := grpc.Dial(fmt.Sprintf("localhost:%v", 8080), opts...)
+	conn, err := grpc.Dial(b.IP, opts...)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -128,6 +140,13 @@ func (b *Basic) FetchFromServer() error {
 			Iden:   id,
 			Key:    int(v.Key),
 			Placed: int(v.Place),
+			Detail: detail{
+				From: v.Detail.From,
+				By: v.Detail.By,
+				Owner: v.Detail.Owner,
+				AtTime: v.Detail.AtTime,
+
+			},
 		})
 	}
 	for _, v := range ShipList.Log {
@@ -217,6 +236,7 @@ func (b *Basic) getRV(index int) *Container {
 
 func (b *Basic) startup(ctx context.Context) {
 	b.ctx = ctx
+	b.GetImageFile()
 	go func() {
 		var wg sync.WaitGroup
 		go logFunc()
@@ -277,21 +297,33 @@ func (b *Basic) Flip(x string, id int) *Basic {
 				Place:    int32(v.Placed),
 				NewPlace: int32(id),
 				Time:     timestamppb.Now(),
+				Detail: &pb.Detail{
+					From:   v.Detail.From,
+					By:     v.Detail.By,
+					AtTime: v.Detail.AtTime,
+					Owner:  v.Detail.Owner,
+				},
 			}
 			if id != -1 {
-				for i, j := range b.Rv {
+				for _, j := range b.Rv {
 					if j.Placed == id {
-						(b.Rv)[i] = Container{
-							Iden:   j.Iden,
-							Name:   j.Name,
-							Placed: v.Placed,
-						}
+						// (b.Rv)[i] = Container{
+						// 	Iden:   j.Iden,
+						// 	Name:   j.Name,
+						// 	Placed: v.Placed,
+						// }
 						change_2 = &pb.Container{
 							Id:       strconv.FormatInt(int64(j.Iden), 10),
 							Name:     j.Name,
 							Place:    int32(j.Placed),
 							NewPlace: int32(v.Placed),
 							Time:     timestamppb.Now(),
+							Detail: &pb.Detail{
+								From:   j.Detail.From,
+								By:     j.Detail.By,
+								AtTime: j.Detail.AtTime,
+								Owner:  j.Detail.Owner,
+							},
 						}
 					}
 				}
@@ -331,6 +363,12 @@ func (b *Basic) Change(x string, id int) *Basic {
 					Iden:   v.Iden,
 					Name:   v.Name,
 					Placed: id,
+					Detail: detail{
+						From:   v.Detail.From,
+						By:     v.Detail.By,
+						AtTime: v.Detail.AtTime,
+						Owner:  v.Detail.Owner,
+					},
 				}
 				rv = string(fmt.Sprintf("%d is moved to %d at %v", index, id, time.Now().Format(time.ANSIC)))
 
@@ -341,6 +379,12 @@ func (b *Basic) Change(x string, id int) *Basic {
 							Iden:   j.Iden,
 							Name:   j.Name,
 							Placed: v.Placed,
+							Detail: detail{
+								From:   j.Detail.From,
+								By:     j.Detail.By,
+								AtTime: j.Detail.AtTime,
+								Owner:  j.Detail.Owner,
+							},
 						}
 						rv = string(fmt.Sprintf("%d is switched with %d at %v", index, j.Iden, time.Now().Format(time.ANSIC)))
 
@@ -350,6 +394,12 @@ func (b *Basic) Change(x string, id int) *Basic {
 					Iden:   v.Iden,
 					Name:   v.Name,
 					Placed: id,
+					Detail: detail{
+						From:   v.Detail.From,
+						By:     v.Detail.By,
+						AtTime: v.Detail.AtTime,
+						Owner:  v.Detail.Owner,
+					},
 				}
 				if len(rv) < 1 {
 					rv = string(fmt.Sprintf("%d is moved to %d at %v", index, id, time.Now().Format(time.ANSIC)))
@@ -363,18 +413,25 @@ func (b *Basic) Change(x string, id int) *Basic {
 	return b
 }
 
-func (b *Basic) SetImageFile(x, y float32) string {
+func (b *Basic) SetImageFile(x float32, y float32, col int16, row int16) string {
 
 	toJson := Position{
 		XPos: x,
 		YPos: y,
+		Col:  uint16(col),
+		Row:  uint16(row),
+		ToIP: b.IP,
 	}
 	file, err := json.Marshal(toJson)
 	if err != nil {
 		return fmt.Sprintln((err))
 	}
 
-	_ = ioutil.WriteFile("./Config.json", file, 0644)
+	err = ioutil.WriteFile("./Config.json", file, 0644)
+
+	if err != nil {
+		fmt.Println(err)
+	}
 
 	return "success"
 }
@@ -393,6 +450,9 @@ func (b *Basic) GetImageFile() interface{} {
 		return Position{
 			XPos: 0,
 			YPos: 0,
+			Col:  5,
+			Row:  2,
+			ToIP: "",
 		}
 	}
 	defer jsonFile.Close()
@@ -401,12 +461,16 @@ func (b *Basic) GetImageFile() interface{} {
 		return Position{
 			XPos: 0,
 			YPos: 0,
+			Col:  5,
+			Row:  2,
+			ToIP: "",
 		}
 	}
 
 	var rv Position
 
 	json.Unmarshal(content, &rv)
+	b.IP=rv.ToIP
 
 	return rv
 }
@@ -477,47 +541,6 @@ func RunServer(wg *sync.WaitGroup) {
 		fmt.Println(err)
 	}
 }
-
-// func runWails() {
-
-// 	app := wails.CreateApp(&wails.AppConfig{
-// 		Width:     1100,
-// 		Height:    800,
-// 		Resizable: true,
-// 		Title:     "DockSetter",
-// 		JS:        js,
-// 		CSS:       css,
-// 		Colour:    "#131313",
-// 	})
-// 	Bench := &Basic{
-// 		Counter: 0,
-// 		Rv: []Container{{
-// 			Iden:   1,
-// 			Name:   "1",
-// 			Placed: -1,
-// 			Key:    0,
-// 		},
-// 			{
-// 				Iden:   2,
-// 				Name:   "2",
-// 				Placed: -1,
-// 				Key:    1,
-// 			},
-// 			{
-// 				Iden:   3,
-// 				Name:   "3",
-// 				Placed: -1,
-// 				Key:    2,
-// 			}},
-// 		signal:       make(chan string),
-// 		Log:          make([]string, 1),
-// 		ctx:          context.Background(),
-// 		storeCommand: make(chan pb.Pack),
-// 	}
-//
-// 	app.Bind(Bench)
-// 	app.Run()
-// }
 
 func NewBasic() *Basic {
 	return &Basic{

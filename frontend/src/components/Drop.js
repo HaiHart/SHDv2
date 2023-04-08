@@ -3,7 +3,7 @@ import { useDrop } from "react-dnd";
 import Drag from "./Drag";
 import { Flip } from "../wailsjs/go/main/Basic";
 
-function DropZone({ items, id}) {
+function DropZone({ items, id, scale}) {
   const [{ isOver }, drop] = useDrop(() => ({
     accept: "image",
     drop: (item) => addItem(item.Iden),
@@ -36,13 +36,15 @@ function DropZone({ items, id}) {
         color: "blue",
         visibility: "visible",
         alignSelf: "flex-start",
-        backgroundColor: "white",
+        background: "rgba(255, 255, 255, 0.0 )",
+        // opacity:"0.0",
+        transform: `scale(${scale})`,
       }}
       ref={drop}
     >
       {items.map((item) => {
         if (item.Placed === id) {
-          return <Drag draggable={true} Iden={item.Iden} name={item.Name} />;
+          return <Drag draggable={true} Iden={item.Iden} name={item.Name} detail={item.Detail} />;
         } else {
           return <></>;
         }

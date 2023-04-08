@@ -48,21 +48,31 @@ function DragDrop() {
   useEffect(() => {
     Flip("yes", Number(0)).then((data) => {
       setData(data);
+      console.log(dat)
     });
-    GetImageFile().then((res) => {
+    window.go.main.Basic.GetImageFile().then((res) => {
       setPos({
         x: res.x,
         y: res.y,
+      });
+      setSize({
+        x: res.col,
+        y: res.row,
       });
     });
   }, []);
 
   const saveCon = (e) => {
     e.preventDefault();
+    window.go.main.Basic.SetImageFile(
+      Number(pos.x),
+      Number(pos.y),
+      Number(size.x),
+      Number(size.y)
+    ).then((res) => {
+      alert(res);
+    });
     if (img === null) {
-      SetImageFile(Number(pos.x), Number(pos.y)).then((res) => {
-        console.log(res);
-      });
       return;
     }
     const formData = new FormData();
@@ -74,8 +84,13 @@ function DragDrop() {
         }
       });
 
-      SetImageFile(Number(pos.x), Number(pos.y)).then((res) => {
-        console.log(res);
+      window.go.main.Basic.SetImageFile(
+        Number(pos.x),
+        Number(pos.y),
+        Number(size.x),
+        Number(size.y)
+      ).then((res) => {
+        alert(res);
       });
     } catch (error) {
       console.log(error);

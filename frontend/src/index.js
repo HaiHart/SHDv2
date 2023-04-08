@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+// import 'react-tooltip/dist/react-tooltip'
 // import 'bootstrap/dist/css'
 // import 'bootstrap/dist/js'
 import "bootstrap/dist/css/bootstrap.min.css";

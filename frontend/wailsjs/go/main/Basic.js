@@ -22,6 +22,6 @@ export function RemoveImage() {
   return window['go']['main']['Basic']['RemoveImage']();
 }
 
-export function SetImageFile(arg1, arg2) {
-  return window['go']['main']['Basic']['SetImageFile'](arg1, arg2);
+export function SetImageFile(arg1, arg2, arg3, arg4) {
+  return window['go']['main']['Basic']['SetImageFile'](arg1, arg2, arg3, arg4);
 }

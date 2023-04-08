@@ -6,7 +6,7 @@ import DragDrop from "./DropAndDrag";
 function Mold() {
   return (
     <div className="bg-light" style={{
-      height: '1080px'
+      // height: '1080px'
     }}>
     <DndProvider backend={HTML5Backend}>
       <DragDrop />

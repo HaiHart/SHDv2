@@ -29,18 +29,21 @@ function DragSight({ dat, box, img, pos }) {
           ? `url(${URL.createObjectURL(img)})`
           : "url('http://localhost:4000/img')",
       backgroundPosition: `${pos.x}px ${pos.y}px`,
+      backgroundSize:"auto 100%",
+      backgroundRepeat:"no-repeat",
       width: "100%",
     };
   };
 
   return (
     <div style={getBg()}>
-      <div
+      <div className="border border-success border-3"
         onWheelCapture={ZoomWheel}
         style={{
           height: "100%",
           overflowX: "scroll",
           overflowY: "scroll",
+          
         }}
       >
         <div
@@ -52,7 +55,7 @@ function DragSight({ dat, box, img, pos }) {
             flexWrap: "wrap",
             justifyContent: "space-evenly",
             transformOrigin: "0 0",
-            transform: `scale(${size.scale})`,
+            // transform: `scale(${size.scale})`,
             paddingTop: `calc(5rem)`,
           }}
         >
@@ -69,7 +72,7 @@ function DragSight({ dat, box, img, pos }) {
                 }}
               >
                 {[...Array(box.x)].map((x, i) => {
-                  return <DropZone items={dat.Rv} id={Number(i + y * box.x)} />;
+                  return <DropZone items={dat.Rv} id={Number(i + y * box.x)} scale={size.scale} />;
                 })}
               </div>
             );

@@ -45,6 +45,7 @@ function WaitZone({ items }) {
               Iden={item.Iden}
               name={item.Name}
               wait={true}
+              detail={item.Detail}
             />
           );
         } else {
