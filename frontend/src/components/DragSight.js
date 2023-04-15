@@ -59,7 +59,7 @@ function DragSight({ dat, box, img, pos }) {
             paddingTop: `calc(5rem)`,
           }}
         >
-          {[...Array(box.y)].map((_, y) => {
+          {[...Array(box.y).keys()].map((_, y) => {
             return (
               <div
                 style={{
@@ -71,8 +71,8 @@ function DragSight({ dat, box, img, pos }) {
                   justifyContent: "space-evenly",
                 }}
               >
-                {[...Array(box.x)].map((x, i) => {
-                  return <DropZone items={dat.Rv} id={Number(i + y * box.x)} scale={size.scale} />;
+                {[...Array(box.x).keys()].map((_, i) => {
+                  return <DropZone items={dat.Rv} id={Number(i + y *box.x)} scale={size.scale} />;
                 })}
               </div>
             );

@@ -34,23 +34,21 @@ function Drag({ Iden, name, draggable, wait, detail }) {
       placement="bottom"
     >
       <div
-        className="bg-black "
+        // className="bg-black "
         id={name}
         style={{
-          backgroundColor: "black",
+          backgroundColor: name !=="x" ? "black":"DarkGrey",
           color: "white",
           visibility: isDragging ? "hidden" : "",
-          text_align: "justify",
+          text_align: name !=="x"?"justify":"center",
           width: "3rem",
           height: "3rem",
         }}
         ref={draggable ? drag : {}}
       >
-        {Iden} {name}
+        { name !=="x"? Iden +" "+name:"X"}
       </div>
-      {/* <Tooltip anchorSelect={"#" + name}>
-        
-      </Tooltip> */}
+      
     </OverlayTrigger>
   );
 }

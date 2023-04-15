@@ -217,23 +217,6 @@ func (b *Basic) getRV(index int) *Container {
 	}
 }
 
-// func (b *Basic) WailsInit(runtime *wails.Runtime) error {
-// 	// runtime.Window.Fullscreen()
-// 	b.log = runtime.Log.New("Basic")
-// 	b.runtime = runtime
-// 	go func() {
-// 		for {
-// 			select {
-// 			case event := <-b.signal:
-// 				b.Log = append(b.Log, event)
-// 				runtime.Events.Emit("List", b)
-// 			}
-
-// 		}
-// 	}()
-// 	return nil
-// }
-
 func (b *Basic) startup(ctx context.Context) {
 	b.ctx = ctx
 	b.GetImageFile()
@@ -262,17 +245,7 @@ func (b *Basic) startup(ctx context.Context) {
 				return
 			}
 		}()
-		// go func() {
-		// 	var group errgroup.Group
-		// 	b.connectServer()
-		// 	group.Go(b.FetchFromServer)
-		// 	group.Go(b.createServerChannel)
-		// 	err := group.Wait()
-		// 	if err != nil {
-		// 		fmt.Println(err)
-		// 		return
-		// 	}
-		// }()
+		
 		wg.Wait()
 	}()
 
@@ -307,11 +280,7 @@ func (b *Basic) Flip(x string, id int) *Basic {
 			if id != -1 {
 				for _, j := range b.Rv {
 					if j.Placed == id {
-						// (b.Rv)[i] = Container{
-						// 	Iden:   j.Iden,
-						// 	Name:   j.Name,
-						// 	Placed: v.Placed,
-						// }
+						
 						change_2 = &pb.Container{
 							Id:       strconv.FormatInt(int64(j.Iden), 10),
 							Name:     j.Name,
@@ -370,7 +339,7 @@ func (b *Basic) Change(x string, id int) *Basic {
 						Owner:  v.Detail.Owner,
 					},
 				}
-				rv = string(fmt.Sprintf("%d is moved to %d at %v", index, id, time.Now().Format(time.ANSIC)))
+				rv = string(fmt.Sprintf("%s is moved to %d at %v", v.Name, id, time.Now().Format(time.ANSIC)))
 
 			} else {
 				for i, j := range b.Rv {
@@ -386,7 +355,7 @@ func (b *Basic) Change(x string, id int) *Basic {
 								Owner:  j.Detail.Owner,
 							},
 						}
-						rv = string(fmt.Sprintf("%d is switched with %d at %v", index, j.Iden, time.Now().Format(time.ANSIC)))
+						rv = string(fmt.Sprintf("%s is switched with %d at %v", v.Name, j.Iden, time.Now().Format(time.ANSIC)))
 
 					}
 				}
@@ -402,7 +371,7 @@ func (b *Basic) Change(x string, id int) *Basic {
 					},
 				}
 				if len(rv) < 1 {
-					rv = string(fmt.Sprintf("%d is moved to %d at %v", index, id, time.Now().Format(time.ANSIC)))
+					rv = string(fmt.Sprintf("%s is moved to %d at %v", v.Name, id, time.Now().Format(time.ANSIC)))
 				}
 			}
 
