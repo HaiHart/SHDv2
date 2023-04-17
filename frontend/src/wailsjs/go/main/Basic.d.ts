@@ -11,4 +11,4 @@ export function GetImageFile():Promise<any>;
 
 export function RemoveImage():Promise<string>;
 
-export function SetImageFile(arg1:number,arg2:number):Promise<string>;
+export function SetImageFile(arg1:number,arg2:number,arg3:number,arg4:number):Promise<string>;

@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	// _ "embed"
 	"encoding/json"
 	"fmt"
 	pb "github.com/HaiHart/ShipdockServer/proto"
@@ -14,7 +13,6 @@ import (
 	"strconv"
 	"sync"
 	"time"
-	// "github.com/leaanthony/mewn"
 	"github.com/wailsapp/wails"
 	rt "github.com/wailsapp/wails/v2/pkg/runtime"
 	"golang.org/x/sync/errgroup"
@@ -443,12 +441,6 @@ func (b *Basic) GetImageFile() interface{} {
 
 	return rv
 }
-
-// //go:embed frontend/build/static/js/main.js
-// var js string
-
-// //go:embed frontend/build/static/css/main.css
-// var css string
 
 func imgLoader(w http.ResponseWriter, r *http.Request) {
 	var Path = "./" + "image.jpg"
