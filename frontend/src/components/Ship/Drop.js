@@ -28,8 +28,8 @@ function DropZone({ items, id, scale, doc }) {
       className="Drop"
       style={{
         border: isOver
-          ? "1rem solid rgba(255, 0, 0, 0.05)"
-          : "1rem solid yellow",
+          ? "0.1rem solid rgba(255, 0, 0, 0.05)"
+          : "0.1rem solid yellow",
         width: "100%",
         height: "calc(1/8)",
         color: "blue",

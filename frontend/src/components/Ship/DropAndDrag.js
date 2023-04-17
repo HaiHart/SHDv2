@@ -8,7 +8,15 @@ import DragSight from "./DragSight";
 // also fine some way to be able to update dropzone size
 function DragDrop() {
   const [dat, setData] = useState({
-    Docks: [],
+    Docks: [
+      {
+        No: Number,
+        Name: String,
+        Length: Number,
+        BoarderRight: Number,
+        ShipList: [String],
+      },
+    ],
     Ships: [],
     Log: [],
   });

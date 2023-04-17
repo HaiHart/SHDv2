@@ -41,6 +41,7 @@ function DragSight({ dat, box, img, pos }) {
         onWheelCapture={ZoomWheel}
         style={{
           height: "100%",
+          width:"100%",
           overflowX: "scroll",
           overflowY: "scroll",
           
@@ -57,7 +58,7 @@ function DragSight({ dat, box, img, pos }) {
             paddingTop: `calc(5rem)`,
           }}
         >
-          {(dat.Docks).map((_, y) => {
+          {(dat.Docks).map((y,_) => {
             return (
               <div className={"col-1"}
 
