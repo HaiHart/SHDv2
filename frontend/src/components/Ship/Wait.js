@@ -8,16 +8,16 @@ function WaitZone({ items }) {
 
   const [{ isOut }, out] = useDrop(() => ({
     accept: "image",
-    drop: (item) => outItem(item.Iden),
+    drop: (item) => outItem(item.Name),
     collect: (monitor) => ({
       isOut: !!monitor.isOver(),
     }),
   }));
   const outItem = (item) => {
-    if (item < 0) {
+    if (item === "") {
       return;
     }
-    window.go.main.ShipStruct.RemoveShip(String(item)).then((data) => {
+    window.go.main.ShipStruct.PlaceShip(Number(-1), String(item)).then((data) => {
     });
 
     return;
@@ -33,7 +33,8 @@ function WaitZone({ items }) {
         flexWrap: "wrap",
         display: "flex",
         flex: "2",
-        height: "5rem",
+        height: "15rem",
+        overflowX:"scroll",
       }}
       ref={out}
     >
@@ -48,6 +49,7 @@ function WaitZone({ items }) {
               detail={item.Detail}
               inTime={item.InTime}
               outTime={item.OutTime}
+              len={item.Length}
             />
           );
         } else {

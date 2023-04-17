@@ -29,25 +29,25 @@ function DragSight({ dat, box, img, pos }) {
           ? `url(${URL.createObjectURL(img)})`
           : "url('http://localhost:4040/img')",
       backgroundPosition: `${pos.x}px ${pos.y}px`,
-      backgroundSize:"auto 100%",
-      backgroundRepeat:"no-repeat",
+      backgroundSize: "auto 100%",
+      backgroundRepeat: "no-repeat",
       width: "100%",
     };
   };
 
   return (
     <div style={getBg()}>
-      <div className="border border-success border-3"
+      <div
+        className="border border-success border-3 container-fluid"
         onWheelCapture={ZoomWheel}
         style={{
           height: "100%",
-          width:"100%",
+          width: "100%",
           overflowX: "scroll",
           overflowY: "scroll",
-          
         }}
       >
-        <div className="container-fluid"
+        {/* <div className="container-fluid"
           style={{
             height: "100%",
             width: "100%",
@@ -57,19 +57,29 @@ function DragSight({ dat, box, img, pos }) {
             transformOrigin: "0 0",
             paddingTop: `calc(5rem)`,
           }}
-        >
-          {(dat.Docks).map((y,_) => {
+        > */}
+        <div className="row">
+          {dat.Docks.map((y, _) => {
             return (
-              <div className={"col-1"}
-
-              >
+              <div className="col-2">
+                <div className="row">
+                  {y.No}
+                </div>
                 {[...Array(8).keys()].map((_, i) => {
-                  return <DropZone items={dat.Ships} scale={size.scale} doc={y} id={i}/>;
+                  return (
+                    <DropZone
+                      items={dat.Ships}
+                      scale={size.scale}
+                      doc={y}
+                      id={7-i}
+                    />
+                  );
                 })}
               </div>
             );
           })}
         </div>
+        {/* </div> */}
       </div>
     </div>
   );

@@ -13,7 +13,3 @@ export function PlaceShip(arg1, arg2) {
 export function RemoveShip(arg1) {
   return window['go']['main']['ShipStruct']['RemoveShip'](arg1);
 }
-
-export function RunServer(arg1) {
-  return window['go']['main']['ShipStruct']['RunServer'](arg1);
-}

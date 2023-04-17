@@ -14,7 +14,7 @@ function DragDrop() {
         Name: String,
         Length: Number,
         BoarderRight: Number,
-        ShipList: [String],
+        ShipList: [],
       },
     ],
     Ships: [],
@@ -285,6 +285,7 @@ function DragDrop() {
               <div
                 style={{
                   height: "100%",
+                  width: "100%",
                 }}
               >
                 <DragSight dat={dat} box={size} img={img} pos={pos} />

@@ -3,7 +3,7 @@ import { useDrag } from "react-dnd";
 import Tooltip from "react-bootstrap/Tooltip";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 
-function Drag({ Iden, name, draggable, wait, detail, inTime, outTime }) {
+function Drag({ Iden, name, draggable, wait, detail, inTime, outTime, len }) {
   if (wait) {
   }
   const [{ isDragging }, drag] = useDrag((monitor) => ({
@@ -56,15 +56,15 @@ function Drag({ Iden, name, draggable, wait, detail, inTime, outTime }) {
       placement="bottom"
     >
       <div
-        // className="bg-black "
+        className="bg-black border border-light"
         id={name}
         style={{
-          backgroundColor: name !== "x" ? "black" : "DarkGrey",
+          // backgroundColor: name !== "x" ? "black" : "DarkGrey",
           color: "white",
           visibility: isDragging ? "hidden" : "",
           text_align: name !== "x" ? "justify" : "center",
-          width: "3rem",
-          height: "3rem",
+          width: "calc(100%/6 *"+String((len/200))+")",
+          height: "4rem",
         }}
         ref={draggable ? drag : {}}
       >

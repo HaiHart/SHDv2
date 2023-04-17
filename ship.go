@@ -19,7 +19,7 @@ import (
 
 type Ship struct {
 	Name    string
-	Placed  int32
+	Placed  int
 	Iden    string
 	Key     int32
 	Detail  detail
@@ -29,10 +29,10 @@ type Ship struct {
 }
 
 type Doc struct {
-	No           int32
+	No           int
 	Name         string
 	Length       uint32
-	BoarderRight int32
+	BoarderRight int
 	// occ          uint32
 	ShipList []string
 }
@@ -100,7 +100,7 @@ func (s *ShipStruct) checkConn(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "Yes")
 }
 
-func (s *ShipStruct) RunServer(wg *sync.WaitGroup) {
+func (s *ShipStruct) runServer(wg *sync.WaitGroup) {
 	defer wg.Done()
 	wg.Add(1)
 	r := mx.NewRouter()
@@ -117,33 +117,34 @@ func (s *ShipStruct) RunServer(wg *sync.WaitGroup) {
 func (s *ShipStruct) startup(ctx context.Context) {
 	s.ctx = ctx
 	go func() {
-		var wg sync.WaitGroup
-		// go RunServer(&wg)
-		go func() {
-			for {
-				select {
-				case event := <-s.signal:
-					s.Log = append(s.Log, event)
-					rt.EventsEmit(s.ctx, "Ship", s)
-				}
-
+		for {
+			select {
+			case event := <-s.signal:
+				fmt.Println(s.Docks[0].ShipList)
+				s.Log = append(s.Log, event)
+				rt.EventsEmit(s.ctx, "Ship", s)
 			}
-		}()
-		// go func() {
-		// 	var group errgroup.Group
-		// 	s.connectServer()
-		// 	group.Go(s.FetchFromServer)
-		// 	group.Go(s.createServerChannel)
-		// 	err := group.Wait()
-		// 	if err != nil {
-		// 		fmt.Println(err)
-		// 		return
-		// 	}
-		// }()
-
-		wg.Wait()
+		}
 	}()
-	s.signal<-"start"
+	// go func() {
+	// 	var wg sync.WaitGroup
+	// 	go RunServer(&wg)
+
+	// 	go func() {
+	// 		var group errgroup.Group
+	// 		s.connectServer()
+	// 		group.Go(s.FetchFromServer)
+	// 		group.Go(s.createServerChannel)
+	// 		err := group.Wait()
+	// 		if err != nil {
+	// 			fmt.Println(err)
+	// 			return
+	// 		}
+	// 	}()
+
+	// 	wg.Wait()
+	// }()
+	// s.signal <- "start"
 }
 
 func (s *ShipStruct) getShip(Name string) int {
@@ -157,7 +158,7 @@ func (s *ShipStruct) getShip(Name string) int {
 
 func (s *ShipStruct) getDock(DocPlace int) int {
 	for k, i := range s.Docks {
-		if i.No == int32(DocPlace) {
+		if i.No == (DocPlace) {
 			return k
 		}
 	}
@@ -166,11 +167,12 @@ func (s *ShipStruct) getDock(DocPlace int) int {
 
 func (s *ShipStruct) checkFit(doc int, ship int) []int {
 	idx := doc
-	count := make([]int, s.Docks[idx].BoarderRight)
+	count := make([]int, 1)
+	count[0] = s.Docks[idx].No
 	Length := s.Ships[ship].Length
 	for Length > s.Docks[idx].Length {
 		Length -= s.Docks[idx].Length
-		if s.Docks[doc].BoarderRight != -1 {
+		if s.Docks[idx].BoarderRight != -1 {
 			idx = s.getDock(int(s.Docks[idx].BoarderRight))
 		} else {
 			return make([]int, 0)
@@ -178,6 +180,7 @@ func (s *ShipStruct) checkFit(doc int, ship int) []int {
 		count = append(count, int(s.Docks[idx].No))
 
 	}
+	fmt.Println(count)
 	return count
 }
 
@@ -186,14 +189,14 @@ func (s *ShipStruct) checkTime(doc int, ship int) int {
 	in := s.Ships[ship].InTime
 	dock := s.Docks[doc]
 	for i := len(dock.ShipList) - 1; i >= 0; i-- {
-		if dock.ShipList[i]==""{
+		if dock.ShipList[i] == "" {
 			continue
 		}
 		temp := s.Ships[s.getShip(dock.ShipList[i])]
 		if temp.OutTime.Before(in) {
-			if i > len(dock.ShipList)-1 {
+			if i < len(dock.ShipList)-1 {
 				prior := s.Ships[s.getShip(dock.ShipList[i+1])]
-				if prior.InTime.Before(out) {
+				if prior.InTime.After(out) {
 					return -1
 				}
 			}
@@ -211,55 +214,74 @@ func (s *ShipStruct) setShip(doc int, name string, idx int) {
 		}
 		temp[idx] = name
 		s.Docks[doc].ShipList = temp
+		// fmt.Println("Over HERE SOME HOW ", temp, s.Docks[doc].ShipList)
 		return
 	}
 	s.Docks[doc].ShipList = append(s.Docks[doc].ShipList[:idx+1], s.Docks[doc].ShipList[idx:]...)
 	s.Docks[doc].ShipList[idx] = name
-	i:= s.Docks[doc].BoarderRight
-	for (i!=-1){
-		for rv,j:=range s.Docks[i].ShipList{
-			checkpoint:=false
-			for _,k:=range s.Docks[doc].ShipList[idx+1:]{
-				if j==k{
-					s.setShip(int(i),j,rv+1)
-					checkpoint=true
+	i := s.Docks[doc].BoarderRight
+	for i != -1 {
+		for rv, j := range s.Docks[i].ShipList {
+			checkpoint := false
+			for _, k := range s.Docks[doc].ShipList[idx+1:] {
+				if j == k {
+					s.setShip(int(i), j, rv+1)
+					checkpoint = true
 					break
 				}
 			}
 			if checkpoint {
+
 				break
 			}
 		}
-		i=s.Docks[i].BoarderRight
+		i = s.Docks[i].BoarderRight
 	}
 
 }
 
 func (s *ShipStruct) PlaceShip(DocPlace int, Name string) {
+	fmt.Println(DocPlace, "  ", Name)
+	if DocPlace == -1 {
+		s.RemoveShip(Name)
+		return
+	}
 	var rv string = ""
 	ship := s.getShip(Name)
 	doc := s.getDock(DocPlace)
-	temp:=s.Ships[ship].Placed
-	if temp!=-1{
+	temp := s.Ships[ship].Placed
+	if temp != -1 {
 		s.RemoveShip(Name)
 	}
 	listDoc := s.checkFit(doc, ship)
 	var idx int
 	idxes := make([]int, 0)
 	for i := range listDoc {
+		j := s.checkTime(i, ship)
+		idxes = append(idxes, j)
+	}
+
+	for i := range idxes {
 		if i == -1 {
-			s.PlaceShip(int(temp),Name)
+			s.PlaceShip(int(temp), Name)
+			fmt.Println("End no place")
 			return
 		}
 		if i > idx {
 			idx = i
 		}
 	}
-	s.Ships[ship].Placed = int32(doc)
+
+	s.Ships[ship].Placed = doc
 	for _, i := range listDoc {
 		s.setShip(i, Name, idx)
 	}
+	if len(listDoc) == 0 || len(idxes) == 0 {
+		fmt.Println("empty")
+		return
+	}
 	rv = fmt.Sprintf("Ship %s has been set to dock(s): %+q ; at position %+q", Name, listDoc, idxes)
+	fmt.Println(rv)
 	s.signal <- rv
 }
 
@@ -274,13 +296,17 @@ func (s *ShipStruct) removeElement(DocPlace int, Name string) {
 
 func (s *ShipStruct) RemoveShip(Name string) {
 	ship := s.getShip(Name)
+	if(s.Ships[ship].Placed == -1){
+		return
+	}
 	s.Ships[ship].Placed = -1
 	for i, _ := range s.Docks {
 		s.removeElement(i, Name)
 	}
+	s.signal<-fmt.Sprintf("Removed Ship %s", Name)
 }
 
-func (s *ShipStruct)Initial() *ShipStruct {
+func (s *ShipStruct) Initial() *ShipStruct {
 	return s
 }
 
@@ -379,7 +405,7 @@ func NewShipStruct() *ShipStruct {
 			},
 		},
 		signal:       make(chan string),
-		Log:          make([]string, 1),
+		Log:          make([]string, 0),
 		ctx:          context.Background(),
 		storeCommand: make(chan pb.Pack),
 	}

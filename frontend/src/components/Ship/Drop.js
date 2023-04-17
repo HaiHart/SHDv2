@@ -5,14 +5,14 @@ import Drag from "./Drag";
 function DropZone({ items, id, scale, doc }) {
   const [{ isOver }, drop] = useDrop(() => ({
     accept: "image",
-    drop: (item) => addItem(item.Iden),
+    drop: (item) => addItem(item.Name),
     collect: (monitor) => ({
       isOver: !!monitor.isOver(),
     }),
   }));
 
   const addItem = (item) => {
-    if (item <= 0) {
+    if (item === "") {
       return;
     }
 
@@ -25,13 +25,14 @@ function DropZone({ items, id, scale, doc }) {
 
   return (
     <div
-      className="Drop"
+      className="Drop row border border-danger border-3"
       style={{
-        border: isOver
-          ? "0.1rem solid rgba(255, 0, 0, 0.05)"
-          : "0.1rem solid yellow",
-        width: "100%",
-        height: "calc(1/8)",
+        // border: isOver
+        //   ? "0.1rem solid rgba(255, 0, 0, 0.05)"
+        //   : "0.1rem solid yellow",
+        width: "11rem",
+        // height: String(1/8)+"%",
+        height: "5rem",
         color: "blue",
         visibility: "visible",
         alignSelf: "flex-start",
@@ -42,8 +43,11 @@ function DropZone({ items, id, scale, doc }) {
       ref={drop}
     >
       {doc.ShipList.map((Ship, i) => {
-        items.map((item) => {
+        return items.map((item,_) => {
           if (i === id && item.Name === Ship && item.Placed === doc.No) {
+          // if (item.Name === Ship && item.Placed === doc.No) {
+          // if (item.Placed === doc.No) {
+            console.log(item)
             return (
               <Drag
                 draggable={true}
@@ -53,6 +57,7 @@ function DropZone({ items, id, scale, doc }) {
                 inTime={item.InTime}
                 outTime={item.OutTime}
                 wait={false}
+                len={item.Length}
               />
             );
           } else {

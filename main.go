@@ -18,8 +18,9 @@ var assets embed.FS
 var icon []byte
 
 func main() {
-	basic := NewBasic()
-	ship := NewShipStruct()
+	// basic := NewBasic()
+	// ship := NewShipStruct()
+	app:=NewApp()
 	// Create application with options
 	err := wails.Run(&options.App{
 		Title:             "react-template",
@@ -32,11 +33,11 @@ func main() {
 		HideWindowOnClose: false,
 		Assets:            assets,
 		LogLevel:          logger.DEBUG,
-		OnStartup:         basic.startup,
-		OnDomReady:        basic.domReady,
-		OnShutdown:        basic.shutdown,
+		OnStartup:         app.startup,
+		OnDomReady:        app.domReady,
+		OnShutdown:        app.shutdown,
 		Bind: []interface{}{
-			basic, ship,
+			app.basic, app.ship,
 		},
 		WindowStartState: options.Maximised,
 		// Windows platform specific options

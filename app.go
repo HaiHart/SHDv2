@@ -21,21 +21,6 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-// App struct
-type App struct {
-	ctx context.Context
-}
-
-// NewApp creates a new App application struct
-func NewApp() *App {
-	return &App{}
-}
-
-// startup is called at application startup
-func (a *App) startup(ctx context.Context) {
-	// Perform your setup here
-	a.ctx = ctx
-}
 
 // domReady is called after the front-end dom has been loaded
 func (b Basic) domReady(ctx context.Context) {
@@ -45,11 +30,6 @@ func (b Basic) domReady(ctx context.Context) {
 // shutdown is called at application termination
 func (b *Basic) shutdown(ctx context.Context) {
 	// Perform your teardown here
-}
-
-// Greet returns a greeting for the given name
-func (a *App) Greet(name string) string {
-	return fmt.Sprintf("Hello %s!", name)
 }
 
 var Log chan string = make(chan string)
