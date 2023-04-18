@@ -14,6 +14,6 @@ export function RemoveShip(arg1) {
   return window['go']['main']['ShipStruct']['RemoveShip'](arg1);
 }
 
-export function RunServer(arg1) {
-  return window['go']['main']['ShipStruct']['RunServer'](arg1);
+export function SetTime(arg1, arg2, arg3) {
+  return window['go']['main']['ShipStruct']['SetTime'](arg1, arg2, arg3);
 }

@@ -1,11 +1,12 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { useDrag } from "react-dnd";
 import Tooltip from "react-bootstrap/Tooltip";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
+import { Popover } from "react-bootstrap";
 
-function Drag({ Iden, name, draggable, wait, detail, inTime, outTime, len }) {
-  if (wait) {
-  }
+function Drag({ Iden, name, draggable, wait, detail, inTime, outTime, len, put }) {
+  const[show,setShow]=useState(false)
+  const target=useRef(null)
   const [{ isDragging }, drag] = useDrag((monitor) => ({
     type: "image",
     item: { Iden: Iden, Name: name },
@@ -36,35 +37,48 @@ function Drag({ Iden, name, draggable, wait, detail, inTime, outTime, len }) {
     }
   }
 
+  const changeTime =(e)=>{
+    e.preventDefault()
+    window.go.main.ShipStruct.SetTime(name, String(time.inTime), String(time.outTime)).then(a=>{
+      alert(a)
+    })
+  }
+
   const renderTooltip = (props) => (
-    <Tooltip className="button-tooltip" {...props}>
+    <Popover className="button-tooltip" {...props}>
       <ul>
         <li>From :{detail.From}</li>
-        <li>Owner :{detail.Owner}</li>
-        <li>By :{detail.By}</li>
-        <li>At :{detail.AtTime}</li>
         <li>In : {inTime}</li>
         <li>Out: {outTime}</li>
+        {put? <li>In:<input type="datetime-local" value={time.inTime} onChange={handleTime} name="in"/></li>:<></>}
+        {put? <li>Out:<input type="datetime-local" value={time.outTime} onChange={handleTime} name="out"/></li>:<></>}
+        {put? <li><input type="button" value={"Submit"} onClick={changeTime}/></li>:<></>}
       </ul>
-    </Tooltip>
+    </Popover>
   );
 
   return (
     <OverlayTrigger
-      delay={{ hide: 450, show: 300 }}
+      // delay={{ hide: 450, show: 300 }} 
+      show={show}
       overlay={renderTooltip}
       placement="bottom"
     >
       <div
         className="bg-black border border-light"
         id={name}
+        onClick={()=>{
+          setShow(!show)
+        }}
         style={{
           // backgroundColor: name !== "x" ? "black" : "DarkGrey",
           color: "white",
           visibility: isDragging ? "hidden" : "",
           text_align: name !== "x" ? "justify" : "center",
-          width: "calc(100%/6 *"+String((len/200))+")",
+          width: put?String("calc(100%/6 *("+String(len)+"/"+String(200)+"))"):"calc(100% *("+String(len)+"/"+String(200)+"))",
           height: "4rem",
+          overflowX:"visible",
+          maxWidth:"none !important",
         }}
         ref={draggable ? drag : {}}
       >

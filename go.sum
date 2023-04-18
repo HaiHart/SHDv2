@@ -1,5 +1,7 @@
 github.com/HaiHart/ShipdockServer v0.0.0-20230405040700-d9d2e4224e99 h1:SfuxA5nwVpSpwLLKP/G3KO/JB6rAlIleltxFZZJNAAI=
 github.com/HaiHart/ShipdockServer v0.0.0-20230405040700-d9d2e4224e99/go.mod h1:Gp9ELoBdNb6hHeAxiPk5UDoMCwTWYw7MbalG4f+6XMg=
+github.com/HaiHart/ShipdockServer v0.0.0-20230418125656-486431ce8625 h1:BZacp6eROgwVdpmCPcZzxQk4xEtOYCQy6BSnkNt9XU4=
+github.com/HaiHart/ShipdockServer v0.0.0-20230418125656-486431ce8625/go.mod h1:Gp9ELoBdNb6hHeAxiPk5UDoMCwTWYw7MbalG4f+6XMg=
 github.com/Masterminds/semver v1.4.2/go.mod h1:MB6lktGJrhw8PrUyiEoblNEGEQ+RzHPF078ddwwvV3Y=
 github.com/Masterminds/semver v1.5.0 h1:H65muMkzWKEuNDnfl9d70GUjFniHKHRbFPGBuZ3QEww=
 github.com/Masterminds/semver v1.5.0/go.mod h1:MB6lktGJrhw8PrUyiEoblNEGEQ+RzHPF078ddwwvV3Y=

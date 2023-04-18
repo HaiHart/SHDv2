@@ -13,3 +13,7 @@ export function PlaceShip(arg1, arg2) {
 export function RemoveShip(arg1) {
   return window['go']['main']['ShipStruct']['RemoveShip'](arg1);
 }
+
+export function SetTime(arg1, arg2, arg3) {
+  return window['go']['main']['ShipStruct']['SetTime'](arg1, arg2, arg3);
+}

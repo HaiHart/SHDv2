@@ -71,7 +71,7 @@ function DragSight({ dat, box, img, pos }) {
                       items={dat.Ships}
                       scale={size.scale}
                       doc={y}
-                      id={7-i}
+                      id={i}
                     />
                   );
                 })}

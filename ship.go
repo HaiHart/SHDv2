@@ -7,6 +7,8 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -188,22 +190,24 @@ func (s *ShipStruct) checkTime(doc int, ship int) int {
 	out := s.Ships[ship].OutTime
 	in := s.Ships[ship].InTime
 	dock := s.Docks[doc]
+	rv := 0
 	for i := len(dock.ShipList) - 1; i >= 0; i-- {
 		if dock.ShipList[i] == "" {
+			rv = i
 			continue
 		}
 		temp := s.Ships[s.getShip(dock.ShipList[i])]
 		if temp.OutTime.Before(in) {
-			if i < len(dock.ShipList)-1 {
-				prior := s.Ships[s.getShip(dock.ShipList[i+1])]
-				if prior.InTime.After(out) {
-					return -1
-				}
+			rv = i + 1
+		} else {
+			if temp.InTime.Before(out) {
+				fmt.Println(doc, " ", dock.ShipList)
+				fmt.Println("Error here")
+				return -1
 			}
-			return i + 1
 		}
 	}
-	return 0
+	return rv
 }
 
 func (s *ShipStruct) setShip(doc int, name string, idx int) {
@@ -214,7 +218,10 @@ func (s *ShipStruct) setShip(doc int, name string, idx int) {
 		}
 		temp[idx] = name
 		s.Docks[doc].ShipList = temp
-		// fmt.Println("Over HERE SOME HOW ", temp, s.Docks[doc].ShipList)
+		return
+	}
+	if s.Docks[doc].ShipList[idx] == "" {
+		s.Docks[doc].ShipList[idx] = name
 		return
 	}
 	s.Docks[doc].ShipList = append(s.Docks[doc].ShipList[:idx+1], s.Docks[doc].ShipList[idx:]...)
@@ -249,19 +256,22 @@ func (s *ShipStruct) PlaceShip(DocPlace int, Name string) {
 	var rv string = ""
 	ship := s.getShip(Name)
 	doc := s.getDock(DocPlace)
+	if s.Ships[ship].Placed==DocPlace{
+		return
+	}
 	temp := s.Ships[ship].Placed
 	if temp != -1 {
 		s.RemoveShip(Name)
 	}
 	listDoc := s.checkFit(doc, ship)
-	var idx int
+	var idx int = -1
 	idxes := make([]int, 0)
-	for i := range listDoc {
+	for _,i := range listDoc {
 		j := s.checkTime(i, ship)
 		idxes = append(idxes, j)
 	}
 
-	for i := range idxes {
+	for _,i := range idxes {
 		if i == -1 {
 			s.PlaceShip(int(temp), Name)
 			fmt.Println("End no place")
@@ -280,7 +290,7 @@ func (s *ShipStruct) PlaceShip(DocPlace int, Name string) {
 		fmt.Println("empty")
 		return
 	}
-	rv = fmt.Sprintf("Ship %s has been set to dock(s): %+q ; at position %+q", Name, listDoc, idxes)
+	rv = fmt.Sprintf("Ship %s has been set to dock(s): %+q ; at position %v", Name, listDoc, idx)
 	fmt.Println(rv)
 	s.signal <- rv
 }
@@ -296,14 +306,55 @@ func (s *ShipStruct) removeElement(DocPlace int, Name string) {
 
 func (s *ShipStruct) RemoveShip(Name string) {
 	ship := s.getShip(Name)
-	if(s.Ships[ship].Placed == -1){
+	if s.Ships[ship].Placed == -1 {
 		return
 	}
 	s.Ships[ship].Placed = -1
 	for i, _ := range s.Docks {
 		s.removeElement(i, Name)
 	}
-	s.signal<-fmt.Sprintf("Removed Ship %s", Name)
+	s.signal <- fmt.Sprintf("Removed Ship %s", Name)
+}
+
+func (s *ShipStruct) parserTime(raw string) time.Time {
+	raw = strings.Replace(raw, "Z", "", -1)
+	major := strings.Split(raw, "T")
+	var date []string = strings.Split(major[0], "-")
+	var t []string = strings.Split(major[1], ":")
+	datei := make([]int, 0)
+	for _, i := range date {
+		temp, _ := strconv.Atoi(i)
+		datei = append(datei, temp)
+	}
+	for _, i := range t {
+		temp, _ := strconv.Atoi(i)
+		datei = append(datei, temp)
+	}
+	var rv time.Time = time.Date(datei[0], time.Month(datei[1]), datei[2], datei[3], datei[4], 0, 0, time.UTC)
+	return rv
+}
+
+func (s *ShipStruct) SetTime(Name string, in string, out string) string {
+	// base := []string{"2000-00-00T00:00", "2000-00-00T00:00:00Z", "2006-01-02T15:04:05.000Z"}
+	var outTime, inTime time.Time
+	fmt.Println(in, " ", out)
+	outTime=s.parserTime(out)
+	inTime=s.parserTime(in)
+	// for _, i := range base {
+	// 	inTime, _ = time.Parse(i, in)
+	// 	outTime, _ = time.Parse(i, out)
+	// }
+	if inTime.Equal(time.Time{}) || outTime.Equal(time.Time{}) {
+		return "fail"
+	}
+	if !inTime.Before(outTime) {
+		return "Wrong Time order"
+	}
+	ship := s.getShip(Name)
+	s.Ships[ship].InTime = inTime
+	s.Ships[ship].OutTime = outTime
+	s.signal<-fmt.Sprintf("Time changed on ship: %s", Name)
+	return "success"
 }
 
 func (s *ShipStruct) Initial() *ShipStruct {
@@ -386,7 +437,7 @@ func NewShipStruct() *ShipStruct {
 				No:           3,
 				Name:         "doc_3",
 				Length:       200,
-				BoarderRight: 3,
+				BoarderRight: 4,
 				ShipList:     make([]string, 0),
 			},
 			{

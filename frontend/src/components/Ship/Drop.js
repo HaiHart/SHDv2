@@ -58,6 +58,7 @@ function DropZone({ items, id, scale, doc }) {
                 outTime={item.OutTime}
                 wait={false}
                 len={item.Length}
+                put={false}
               />
             );
           } else {

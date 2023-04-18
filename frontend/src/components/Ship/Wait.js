@@ -50,6 +50,7 @@ function WaitZone({ items }) {
               inTime={item.InTime}
               outTime={item.OutTime}
               len={item.Length}
+              put={true}
             />
           );
         } else {
