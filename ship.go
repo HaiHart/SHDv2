@@ -177,7 +177,7 @@ func (s *ShipStruct) fetchFromServer() error {
 			No:           int(v.No),
 			Length:       v.Length,
 			BoarderRight: int(v.BoarderRight),
-			ShipList:     append([]string{},v.ShipList...),
+			ShipList:     append([]string{}, v.ShipList...),
 		})
 	}
 	for _, v := range in.Ships {
@@ -283,10 +283,12 @@ func (s *ShipStruct) getDock(DocPlace int) int {
 
 func (s *ShipStruct) checkFit(doc int, ship int) []int {
 	idx := doc
-	count := make([]int, 1)
-	count[0] = s.Docks[idx].No
+	count := make([]int, 0)
+	count = append(count,s.Docks[idx].No)
 	Length := s.Ships[ship].Length
-	for Length > s.Docks[idx].Length {
+		fmt.Println(Length)
+		for Length > s.Docks[idx].Length {
+		fmt.Println(Length)
 		Length -= s.Docks[idx].Length
 		if s.Docks[idx].BoarderRight != -1 {
 			idx = s.getDock(int(s.Docks[idx].BoarderRight))
@@ -304,15 +306,10 @@ func (s *ShipStruct) checkTime(doc int, ship int) int {
 	out := s.Ships[ship].OutTime
 	in := s.Ships[ship].InTime
 	dock := s.Docks[doc]
-	rv := 0
 	for i := len(dock.ShipList) - 1; i >= 0; i-- {
-		if dock.ShipList[i] == "" {
-			rv = i
-			continue
-		}
 		temp := s.Ships[s.getShip(dock.ShipList[i])]
 		if temp.OutTime.Before(in) {
-			rv = i + 1
+			return i + 1
 		} else {
 			if temp.InTime.Before(out) {
 				fmt.Println(doc, " ", dock.ShipList)
@@ -321,7 +318,7 @@ func (s *ShipStruct) checkTime(doc int, ship int) int {
 			}
 		}
 	}
-	return rv
+	return 0
 }
 
 func (s *ShipStruct) setShip(doc int, name string, idx int) {
@@ -365,6 +362,7 @@ func (s *ShipStruct) placeShip(DocPlace int, Name string) {
 	fmt.Println(DocPlace, "  ", Name)
 	if DocPlace == -1 {
 		s.removeShip(Name)
+		s.signal <- fmt.Sprintf("Removed Ship %s at time %v", Name, time.Now())
 		return
 	}
 	var rv string = ""
@@ -378,7 +376,6 @@ func (s *ShipStruct) placeShip(DocPlace int, Name string) {
 		s.removeShip(Name)
 	}
 	listDoc := s.checkFit(doc, ship)
-	var idx int = -1
 	idxes := make([]int, 0)
 	for _, i := range listDoc {
 		j := s.checkTime(i, ship)
@@ -391,20 +388,17 @@ func (s *ShipStruct) placeShip(DocPlace int, Name string) {
 			fmt.Println("End no place")
 			return
 		}
-		if i > idx {
-			idx = i
-		}
 	}
 
 	s.Ships[ship].Placed = doc
-	for _, i := range listDoc {
-		s.setShip(i, Name, idx)
+	for k, i := range listDoc {
+		s.setShip(i, Name, idxes[k])
 	}
 	if len(listDoc) == 0 || len(idxes) == 0 {
 		fmt.Println("empty")
 		return
 	}
-	rv = fmt.Sprintf("Ship %s has been set to dock(s): %+q ; at position %v at time %v", Name, listDoc, idx, time.Now())
+	rv = fmt.Sprintf("Ship %s has been set to dock(s): %v ; at position %v at time %v", Name, listDoc, idxes, time.Now())
 	fmt.Println(rv)
 	s.signal <- rv
 }
@@ -434,24 +428,24 @@ func (s *ShipStruct) PlaceShip(DocPlace int, Name string) {
 		},
 	}
 
-	var sList []*pb.PlaceShip_ShipList=make([]*pb.PlaceShip_ShipList, 0)
+	var sList []*pb.PlaceShip_ShipList = make([]*pb.PlaceShip_ShipList, 0)
 
 	var shipList = s.getShipLists()
 
-	for _,i:=range shipList{
-		sList=append(sList, &pb.PlaceShip_ShipList{
-			List: append([]string{},i...),
+	for _, i := range shipList {
+		sList = append(sList, &pb.PlaceShip_ShipList{
+			List: append([]string{}, i...),
 		})
 	}
 
 	var moveShip = pb.PlaceShip{
-		Ship: &ship,
-		Place: int32(DocPlace),
+		Ship:       &ship,
+		Place:      int32(DocPlace),
 		ChangeTime: false,
-		ShipList: sList,
+		ShipList:   sList,
 	}
 	fmt.Println("Move command invoked")
-	s.storeCommand<-moveShip
+	s.storeCommand <- moveShip
 }
 
 func (s *ShipStruct) removeElement(DocPlace int, Name string) {
@@ -472,7 +466,7 @@ func (s *ShipStruct) removeShip(Name string) {
 	for i, _ := range s.Docks {
 		s.removeElement(i, Name)
 	}
-	s.signal <- fmt.Sprintf("Removed Ship %s at time %v", Name, time.Now())
+	// s.signal <- fmt.Sprintf("Removed Ship %s at time %v", Name, time.Now())
 }
 
 func (s *ShipStruct) parserTime(raw string) time.Time {
