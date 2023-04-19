@@ -61,7 +61,22 @@ function DropZone({ items, id, scale, doc }) {
                 put={false}
               />
             );
-          } else {
+          } else 
+          if (i === id && item.Name === Ship){
+            return (<Drag
+              draggable={false}
+              Iden={item.Iden}
+              name={"x"}
+              detail={item.Detail}
+              inTime={item.InTime}
+              outTime={item.OutTime}
+              wait={false}
+              len={item.Length}
+              put={false}
+            />)
+          }else
+          {
+
             return <></>;
           }
         });

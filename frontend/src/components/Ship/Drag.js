@@ -4,9 +4,19 @@ import Tooltip from "react-bootstrap/Tooltip";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import { Popover } from "react-bootstrap";
 
-function Drag({ Iden, name, draggable, wait, detail, inTime, outTime, len, put }) {
-  const[show,setShow]=useState(false)
-  const target=useRef(null)
+function Drag({
+  Iden,
+  name,
+  draggable,
+  wait,
+  detail,
+  inTime,
+  outTime,
+  len,
+  put,
+}) {
+  const [show, setShow] = useState(false);
+  const target = useRef(null);
   const [{ isDragging }, drag] = useDrag((monitor) => ({
     type: "image",
     item: { Iden: Iden, Name: name },
@@ -22,63 +32,101 @@ function Drag({ Iden, name, draggable, wait, detail, inTime, outTime, len, put }
     outTime: outTime,
   });
 
-  const handleTime = (e)=>{
-    e.preventDefault()
+  const handleTime = (e) => {
+    e.preventDefault();
     if (e.target.name === "in") {
       setTime({
-        outTime:time.outTime,
-        inTime: e.target.value
-      })
-    } else{
+        outTime: time.outTime,
+        inTime: e.target.value,
+      });
+    } else {
       setTime({
-        inTime:time.inTime,
-        outTime: e.target.value
-      })
+        inTime: time.inTime,
+        outTime: e.target.value,
+      });
     }
-  }
+  };
 
-  const changeTime =(e)=>{
-    e.preventDefault()
-    window.go.main.ShipStruct.SetTime(name, String(time.inTime), String(time.outTime)).then(a=>{
-      alert(a)
-    })
-  }
+  const changeTime = (e) => {
+    e.preventDefault();
+    window.go.main.ShipStruct.SetTime(
+      name,
+      String(time.inTime),
+      String(time.outTime)
+    ).then((a) => {
+      alert(a);
+    });
+  };
 
   const renderTooltip = (props) => (
-    <Popover className="button-tooltip" {...props}>
+    <Tooltip className="button-tooltip" {...props}>
       <ul>
         <li>From :{detail.From}</li>
         <li>In : {inTime}</li>
         <li>Out: {outTime}</li>
-        {put? <li>In:<input type="datetime-local" value={time.inTime} onChange={handleTime} name="in"/></li>:<></>}
-        {put? <li>Out:<input type="datetime-local" value={time.outTime} onChange={handleTime} name="out"/></li>:<></>}
-        {put? <li><input type="button" value={"Submit"} onClick={changeTime}/></li>:<></>}
+        {put ? (
+          <li>
+            In:
+            <input
+              type="datetime-local"
+              value={time.inTime}
+              onChange={handleTime}
+              name="in"
+            />
+          </li>
+        ) : (
+          <></>
+        )}
+        {put ? (
+          <li>
+            Out:
+            <input
+              type="datetime-local"
+              value={time.outTime}
+              onChange={handleTime}
+              name="out"
+            />
+          </li>
+        ) : (
+          <></>
+        )}
+        {put ? (
+          <li>
+            <input type="button" value={"Submit"} onClick={changeTime} />
+          </li>
+        ) : (
+          <></>
+        )}
       </ul>
-    </Popover>
+    </Tooltip>
   );
 
   return (
     <OverlayTrigger
-      // delay={{ hide: 450, show: 300 }} 
+      // delay={{ hide: 450, show: 300 }}
       show={show}
       overlay={renderTooltip}
       placement="bottom"
     >
       <div
-        className="bg-dark text-white"
+        // className="bg-dark text-white"
         id={name}
-        onClick={()=>{
-          setShow(!show)
+        onClick={() => {
+          setShow(!show);
         }}
         style={{
-          backgroundColor: name !== "x" ? "black" : "DarkGrey",
+          backgroundColor: name !== "x" ? "black" : "gray",
           // color: "white",
+          // backgroundColor:"black",
+          color: name !== "x" ? "white" : "black",
           visibility: isDragging ? "hidden" : "",
           text_align: name !== "x" ? "justify" : "center",
-          width: put?String("calc(100%/6 *("+String(len)+"/"+String(200)+"))"):"calc(100% *("+String(len)+"/"+String(200)+"))",
+          // width: put?String("calc(100%/6 *("+String(len)+"/"+String(200)+"))"):"calc(100% *("+String(len)+"/"+String(200)+"))",
+          // height: put?"50%":"100%",
+          width: "9rem",
           height: "4rem",
-          overflowX:"visible",
-          maxWidth:"none !important",
+          overflowX: "visible",
+          // maxWidth:"none !important",
         }}
         ref={draggable ? drag : {}}
       >

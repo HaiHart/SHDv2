@@ -237,10 +237,6 @@ func (s *ShipStruct) createServerChannel() error {
 				s.fetchFromServer()
 				continue
 			}
-			if in.Err != "" {
-				rt.EventsEmit(s.ctx, "Time", in.Err)
-				continue
-			}
 			if in.ChangeTime {
 				s.setTime(in.Ship.Name, in.Ship.InTime.AsTime(), in.Ship.OutTime.AsTime())
 				continue
@@ -251,13 +247,12 @@ func (s *ShipStruct) createServerChannel() error {
 		}
 	}()
 	go func() {
-		fmt.Println("runnnnnnnnnnnnnnnnnnnnnnnnnnnnnn")
 		for {
 			select {
 			case commmand := <-s.storeCommand:
 				err := stream.Send(&commmand)
 				if err != nil {
-					fmt.Println("send command to somewhere: %v", err)
+					fmt.Println("send command to somewhere: ", err)
 				}
 				fmt.Println("Yesssssssssssss")
 			}
@@ -439,13 +434,13 @@ func (s *ShipStruct) PlaceShip(DocPlace int, Name string) {
 		},
 	}
 
-	var sList []*pb.PlaceShip_ShipList
+	var sList []*pb.PlaceShip_ShipList=make([]*pb.PlaceShip_ShipList, 0)
 
 	var shipList = s.getShipLists()
 
 	for _,i:=range shipList{
 		sList=append(sList, &pb.PlaceShip_ShipList{
-			List: i,
+			List: append([]string{},i...),
 		})
 	}
 
@@ -455,6 +450,7 @@ func (s *ShipStruct) PlaceShip(DocPlace int, Name string) {
 		ChangeTime: false,
 		ShipList: sList,
 	}
+	fmt.Println("Move command invoked")
 	s.storeCommand<-moveShip
 }
 
