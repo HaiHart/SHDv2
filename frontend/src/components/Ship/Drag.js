@@ -65,14 +65,14 @@ function Drag({ Iden, name, draggable, wait, detail, inTime, outTime, len, put }
       placement="bottom"
     >
       <div
-        className="bg-black border border-light"
+        className="bg-dark text-white"
         id={name}
         onClick={()=>{
           setShow(!show)
         }}
         style={{
-          // backgroundColor: name !== "x" ? "black" : "DarkGrey",
-          color: "white",
+          backgroundColor: name !== "x" ? "black" : "DarkGrey",
+          // color: "white",
           visibility: isDragging ? "hidden" : "",
           text_align: name !== "x" ? "justify" : "center",
           width: put?String("calc(100%/6 *("+String(len)+"/"+String(200)+"))"):"calc(100% *("+String(len)+"/"+String(200)+"))",

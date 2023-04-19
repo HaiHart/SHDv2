@@ -16,7 +16,10 @@ import (
 	mx "github.com/gorilla/mux"
 	"github.com/wailsapp/wails"
 	rt "github.com/wailsapp/wails/v2/pkg/runtime"
-	// "golang.org/x/sync/errgroup"
+	"golang.org/x/sync/errgroup"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type Ship struct {
@@ -51,8 +54,8 @@ type ShipStruct struct {
 	client       pb.ComClient
 	ctx          context.Context
 	cancle       context.CancelFunc
-	streamConn   pb.Com_MoveContainerClient
-	storeCommand chan pb.Pack
+	streamConn   pb.Com_MoveShipClient
+	storeCommand chan pb.PlaceShip
 }
 
 func (s *ShipStruct) imgLoader(w http.ResponseWriter, r *http.Request) {
@@ -128,25 +131,141 @@ func (s *ShipStruct) startup(ctx context.Context) {
 			}
 		}
 	}()
-	// go func() {
-	// 	var wg sync.WaitGroup
-	// 	go RunServer(&wg)
+	go func() {
+		var wg sync.WaitGroup
+		// go RunServer(&wg)
 
-	// 	go func() {
-	// 		var group errgroup.Group
-	// 		s.connectServer()
-	// 		group.Go(s.FetchFromServer)
-	// 		group.Go(s.createServerChannel)
-	// 		err := group.Wait()
-	// 		if err != nil {
-	// 			fmt.Println(err)
-	// 			return
-	// 		}
-	// 	}()
+		go func() {
+			var group errgroup.Group
+			s.connectServer()
+			group.Go(s.fetchFromServer)
+			group.Go(s.createServerChannel)
+			err := group.Wait()
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+		}()
 
-	// 	wg.Wait()
-	// }()
+		wg.Wait()
+	}()
 	// s.signal <- "start"
+}
+
+func (s *ShipStruct) connectServer() {
+	var opts []grpc.DialOption
+	opts = append(opts, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.Dial(fmt.Sprintf("localhost:%v", 8050), opts...)
+	// conn, err := grpc.Dial(s.IP, opts...)
+	if err != nil {
+		fmt.Println(err)
+	}
+	s.client = pb.NewComClient(conn)
+	// defer conn.Close()
+}
+
+func (s *ShipStruct) fetchFromServer() error {
+	in, err := s.client.FetchDocks(s.ctx, &pb.Header{Time: timestamppb.Now()})
+	if err != nil {
+		return err
+	}
+	s.Docks = make([]Doc, 0)
+	s.Ships = make([]Ship, 0)
+	for _, v := range in.Docks {
+		s.Docks = append(s.Docks, Doc{
+			Name:         v.Name,
+			No:           int(v.No),
+			Length:       v.Length,
+			BoarderRight: int(v.BoarderRight),
+			ShipList:     append([]string{},v.ShipList...),
+		})
+	}
+	for _, v := range in.Ships {
+		s.Ships = append(s.Ships, Ship{
+			Name:    v.Name,
+			Placed:  int(v.Placed),
+			Key:     v.Key,
+			Iden:    v.Iden,
+			Length:  v.Length,
+			InTime:  v.InTime.AsTime(),
+			OutTime: v.OutTime.AsTime(),
+			Detail: detail{
+				From:   v.Detail.From,
+				Owner:  v.Detail.Owner,
+				AtTime: v.Detail.AtTime,
+				By:     v.Detail.By,
+			},
+		})
+	}
+	for _, v := range in.Log {
+		s.Log = append(in.Log, v)
+	}
+	rt.EventsEmit(s.ctx, "Ship", s)
+	return nil
+}
+
+func (s *ShipStruct) createServerChannel() error {
+	stream, err := s.client.MoveShip(s.ctx)
+	if err != nil {
+		fmt.Println(err)
+	}
+	go func() {
+		s.streamConn = stream
+		for {
+			in, err := stream.Recv()
+			if err == io.EOF {
+				stream, err = s.client.MoveShip(s.ctx)
+				var wait = 1
+				for err != nil {
+					time.Sleep(time.Duration(wait) * time.Second)
+					stream, err = s.client.MoveShip(s.ctx)
+					if wait < 100 {
+						wait = wait * 2
+					}
+				}
+
+				s.streamConn = stream
+				continue
+			}
+			if err != nil {
+				fmt.Println(err)
+			}
+
+			// fmt.Println(in.List[0].Id, int(in.List[0].NewPlace))
+			// b.Change(in.List[0].Id, int(in.List[0].NewPlace))
+			if in.Err == "desync" {
+				s.fetchFromServer()
+				continue
+			}
+			if in.Err != "" {
+				rt.EventsEmit(s.ctx, "Time", in.Err)
+				continue
+			}
+			if in.ChangeTime {
+				s.setTime(in.Ship.Name, in.Ship.InTime.AsTime(), in.Ship.OutTime.AsTime())
+				continue
+			}
+			var name = in.Ship.Name
+			var doc = in.Place
+			s.placeShip(int(doc), name)
+		}
+	}()
+	go func() {
+		fmt.Println("runnnnnnnnnnnnnnnnnnnnnnnnnnnnnn")
+		for {
+			select {
+			case commmand := <-s.storeCommand:
+				err := stream.Send(&commmand)
+				if err != nil {
+					fmt.Println("send command to somewhere: %v", err)
+				}
+				fmt.Println("Yesssssssssssss")
+			}
+		}
+	}()
+
+	// <-waitc
+	return nil
 }
 
 func (s *ShipStruct) getShip(Name string) int {
@@ -247,33 +366,33 @@ func (s *ShipStruct) setShip(doc int, name string, idx int) {
 
 }
 
-func (s *ShipStruct) PlaceShip(DocPlace int, Name string) {
+func (s *ShipStruct) placeShip(DocPlace int, Name string) {
 	fmt.Println(DocPlace, "  ", Name)
 	if DocPlace == -1 {
-		s.RemoveShip(Name)
+		s.removeShip(Name)
 		return
 	}
 	var rv string = ""
 	ship := s.getShip(Name)
 	doc := s.getDock(DocPlace)
-	if s.Ships[ship].Placed==DocPlace{
+	if s.Ships[ship].Placed == DocPlace {
 		return
 	}
 	temp := s.Ships[ship].Placed
 	if temp != -1 {
-		s.RemoveShip(Name)
+		s.removeShip(Name)
 	}
 	listDoc := s.checkFit(doc, ship)
 	var idx int = -1
 	idxes := make([]int, 0)
-	for _,i := range listDoc {
+	for _, i := range listDoc {
 		j := s.checkTime(i, ship)
 		idxes = append(idxes, j)
 	}
 
-	for _,i := range idxes {
+	for _, i := range idxes {
 		if i == -1 {
-			s.PlaceShip(int(temp), Name)
+			s.placeShip(int(temp), Name)
 			fmt.Println("End no place")
 			return
 		}
@@ -290,9 +409,53 @@ func (s *ShipStruct) PlaceShip(DocPlace int, Name string) {
 		fmt.Println("empty")
 		return
 	}
-	rv = fmt.Sprintf("Ship %s has been set to dock(s): %+q ; at position %v", Name, listDoc, idx)
+	rv = fmt.Sprintf("Ship %s has been set to dock(s): %+q ; at position %v at time %v", Name, listDoc, idx, time.Now())
 	fmt.Println(rv)
 	s.signal <- rv
+}
+
+func (s *ShipStruct) getShipLists() [][]string {
+	var rv [][]string
+	for _, i := range s.Docks {
+		rv = append(rv, i.ShipList)
+	}
+	return rv
+}
+
+func (s *ShipStruct) PlaceShip(DocPlace int, Name string) {
+	var idx = s.getShip(Name)
+	var ship = pb.Ship{
+		Name:    s.Ships[idx].Name,
+		Placed:  int32(s.Ships[idx].Placed),
+		Key:     s.Ships[idx].Key,
+		Length:  s.Ships[idx].Length,
+		InTime:  timestamppb.New(s.Ships[idx].InTime),
+		OutTime: timestamppb.New(s.Ships[idx].OutTime),
+		Detail: &pb.Detail{
+			From:   s.Ships[idx].Detail.From,
+			By:     s.Ships[idx].Detail.By,
+			AtTime: s.Ships[idx].Detail.AtTime,
+			Owner:  s.Ships[idx].Detail.Owner,
+		},
+	}
+
+	var sList []*pb.PlaceShip_ShipList
+
+	var shipList = s.getShipLists()
+
+	for _,i:=range shipList{
+		sList=append(sList, &pb.PlaceShip_ShipList{
+			List: i,
+		})
+	}
+
+	var moveShip = pb.PlaceShip{
+		Ship: &ship,
+		Place: int32(DocPlace),
+		ChangeTime: false,
+		ShipList: sList,
+	}
+	s.storeCommand<-moveShip
 }
 
 func (s *ShipStruct) removeElement(DocPlace int, Name string) {
@@ -304,7 +467,7 @@ func (s *ShipStruct) removeElement(DocPlace int, Name string) {
 	}
 }
 
-func (s *ShipStruct) RemoveShip(Name string) {
+func (s *ShipStruct) removeShip(Name string) {
 	ship := s.getShip(Name)
 	if s.Ships[ship].Placed == -1 {
 		return
@@ -313,7 +476,7 @@ func (s *ShipStruct) RemoveShip(Name string) {
 	for i, _ := range s.Docks {
 		s.removeElement(i, Name)
 	}
-	s.signal <- fmt.Sprintf("Removed Ship %s", Name)
+	s.signal <- fmt.Sprintf("Removed Ship %s at time %v", Name, time.Now())
 }
 
 func (s *ShipStruct) parserTime(raw string) time.Time {
@@ -334,27 +497,33 @@ func (s *ShipStruct) parserTime(raw string) time.Time {
 	return rv
 }
 
-func (s *ShipStruct) SetTime(Name string, in string, out string) string {
+func (s *ShipStruct) SetTime(Name string, in string, out string) {
 	// base := []string{"2000-00-00T00:00", "2000-00-00T00:00:00Z", "2006-01-02T15:04:05.000Z"}
 	var outTime, inTime time.Time
 	fmt.Println(in, " ", out)
-	outTime=s.parserTime(out)
-	inTime=s.parserTime(in)
+	outTime = s.parserTime(out)
+	inTime = s.parserTime(in)
 	// for _, i := range base {
 	// 	inTime, _ = time.Parse(i, in)
 	// 	outTime, _ = time.Parse(i, out)
 	// }
-	if inTime.Equal(time.Time{}) || outTime.Equal(time.Time{}) {
-		return "fail"
+	var ship = s.Ships[s.getShip(Name)]
+	var req = pb.PlaceShip{
+		ChangeTime: true,
+		Ship: &pb.Ship{
+			Name:    ship.Name,
+			InTime:  timestamppb.New(inTime),
+			OutTime: timestamppb.New(outTime),
+		},
 	}
-	if !inTime.Before(outTime) {
-		return "Wrong Time order"
-	}
+	s.storeCommand <- req
+}
+
+func (s *ShipStruct) setTime(Name string, in time.Time, out time.Time) {
 	ship := s.getShip(Name)
-	s.Ships[ship].InTime = inTime
-	s.Ships[ship].OutTime = outTime
-	s.signal<-fmt.Sprintf("Time changed on ship: %s", Name)
-	return "success"
+	s.Ships[ship].InTime = in
+	s.Ships[ship].OutTime = out
+	s.signal <- fmt.Sprintf("Time changed on ship: %s at time %v", Name, time.Now())
 }
 
 func (s *ShipStruct) Initial() *ShipStruct {
@@ -458,7 +627,7 @@ func NewShipStruct() *ShipStruct {
 		signal:       make(chan string),
 		Log:          make([]string, 0),
 		ctx:          context.Background(),
-		storeCommand: make(chan pb.Pack),
+		storeCommand: make(chan pb.PlaceShip),
 	}
 
 }
