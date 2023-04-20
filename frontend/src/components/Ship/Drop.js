@@ -22,34 +22,28 @@ function DropZone({ items, id, scale, doc, len }) {
 
     return;
   };
-
   return (
     <div
-      className="Drop row border border-danger border-1"
+      
       style={{
-        // border: isOver
-        //   ? "0.1rem solid rgba(255, 0, 0, 0.05)"
-        //   : "0.1rem solid yellow",
-        // width: "11rem",
-        width:"calc(100%/6*("+String(doc.Length)+"/"+String(200)+")-2%)",
+        // width: `calc(20rem*(${doc.Length}/200))`,
         // height: String(1/8)+"%",
+        width:"100%",
         height: "5rem",
         color: "blue",
         visibility: "visible",
         alignSelf: "flex-start",
         background: "rgba(255, 255, 255, 0.0 )",
-        // opacity:"0.0",
-        // transform: `scale(${scale})`,
-        maxWidth:"none !important",
+        maxWidth: "none !important",
       }}
       ref={drop}
     >
       {doc.ShipList.map((Ship, i) => {
-        return items.map((item,_) => {
+        return items.map((item, _) => {
           if (i === id && item.Name === Ship && item.Placed === doc.No) {
-          // if (item.Name === Ship && item.Placed === doc.No) {
-          // if (item.Placed === doc.No) {
-            console.log(item)
+            // if (item.Name === Ship && item.Placed === doc.No) {
+            // if (item.Placed === doc.No) {
+            console.log(item);
             return (
               <Drag
                 draggable={true}
@@ -63,23 +57,22 @@ function DropZone({ items, id, scale, doc, len }) {
                 put={false}
               />
             );
-          } else 
-          if (i === id && item.Name === Ship){
-            return (<Drag
-              draggable={false}
-              Iden={item.Iden}
-              name={"x"}
-              detail={item.Detail}
-              inTime={item.InTime}
-              outTime={item.OutTime}
-              wait={false}
-              len={item.Length}
-              put={false}
-            />)
-          }else
-          {
-
-            return <></>;
+          } else if (i === id && item.Name === Ship) {
+            return (
+              <Drag
+                draggable={false}
+                Iden={item.Iden}
+                name={"x"}
+                detail={item.Detail}
+                inTime={item.InTime}
+                outTime={item.OutTime}
+                wait={false}
+                len={item.Length}
+                put={false}
+              />
+            );
+          } else {
+            return <span></span>;
           }
         });
       })}

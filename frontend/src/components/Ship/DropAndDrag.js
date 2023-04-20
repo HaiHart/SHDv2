@@ -19,6 +19,7 @@ function DragDrop() {
     ],
     Ships: [],
     Log: [],
+    Total: Number,
   });
   const [size, setSize] = useState({
     x: 8,
@@ -48,17 +49,15 @@ function DragDrop() {
   }, []);
 
   return (
-    <div className="container-fluid ">
+    <div
+      className="container-fluid "
+      style={{
+        height: "100%",
+      }}
+    >
       <div className="row">
         <div className="col-10">
-          <div
-            className="row"
-            style={{
-              alignSelf: "flex-start",
-              width: "100%",
-              height: "100%",
-            }}
-          >
+          <div className="row">
             <div className="col-md">
               <div className="List row border border-primary rounded">
                 <WaitZone items={dat.Ships} />
@@ -285,7 +284,7 @@ function DragDrop() {
               <div
                 style={{
                   height: "100%",
-                  width: "100%",
+                  width:"100%"
                 }}
               >
                 <DragSight dat={dat} box={size} img={img} pos={pos} />

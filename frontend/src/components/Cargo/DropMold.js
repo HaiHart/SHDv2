@@ -7,7 +7,6 @@ function Mold() {
   return (
     <div className="bg-light" style={{
       height:"100vh",
-      // height: '1080px'
     }}>
     <DndProvider backend={HTML5Backend}>
       <DragDrop />

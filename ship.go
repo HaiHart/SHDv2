@@ -56,6 +56,7 @@ type ShipStruct struct {
 	cancle       context.CancelFunc
 	streamConn   pb.Com_MoveShipClient
 	storeCommand chan pb.PlaceShip
+	Total        int
 }
 
 func (s *ShipStruct) imgLoader(w http.ResponseWriter, r *http.Request) {
@@ -165,6 +166,7 @@ func (s *ShipStruct) connectServer() {
 }
 
 func (s *ShipStruct) fetchFromServer() error {
+	s.Total = 0
 	in, err := s.client.FetchDocks(s.ctx, &pb.Header{Time: timestamppb.Now()})
 	if err != nil {
 		return err
@@ -179,6 +181,7 @@ func (s *ShipStruct) fetchFromServer() error {
 			BoarderRight: int(v.BoarderRight),
 			ShipList:     append([]string{}, v.ShipList...),
 		})
+		s.Total = s.Total + int(v.Length)
 	}
 	for _, v := range in.Ships {
 		s.Ships = append(s.Ships, Ship{
@@ -284,10 +287,10 @@ func (s *ShipStruct) getDock(DocPlace int) int {
 func (s *ShipStruct) checkFit(doc int, ship int) []int {
 	idx := doc
 	count := make([]int, 0)
-	count = append(count,s.Docks[idx].No)
+	count = append(count, s.Docks[idx].No)
 	Length := s.Ships[ship].Length
-		fmt.Println(Length)
-		for Length > s.Docks[idx].Length {
+	fmt.Println(Length)
+	for Length > s.Docks[idx].Length {
 		fmt.Println(Length)
 		Length -= s.Docks[idx].Length
 		if s.Docks[idx].BoarderRight != -1 {

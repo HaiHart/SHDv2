@@ -38,47 +38,49 @@ function DragSight({ dat, box, img, pos }) {
   return (
     <div style={getBg()}>
       <div
-        className="border border-success border-3 container-fluid"
+        className="border border-success border-3"
         onWheelCapture={ZoomWheel}
         style={{
           height: "100%",
           width: "100%",
-          overflowX: "scroll !important",
-          overflowY: "scroll !important",
+          overflowX: "scroll",
+          overflowY: "scroll",
         }}
       >
-        {/* <div className="container-fluid"
-          style={{
-            height: "100%",
-            width: "100%",
-            display: "flex",
-            flexDirection: "row",
-            flexWrap: "wrap",
-            transformOrigin: "0 0",
-            paddingTop: `calc(5rem)`,
-          }}
-        > */}
         <div
-          className="row"
           style={{
-            height: "100%",
+            // display: "flex",
+            // flexDirection: "row",
+            // flexWrap: "wrap",
             width: "100%",
-            overflowX: "scroll !important",
-            overflowY: "scroll !important",
+            height: "100%",
+            transform: `scale(${size.scale})`,
           }}
         >
           {dat.Docks.map((y, _) => {
             return (
-              <div className="col-2">
-                <div className="row">{y.No}</div>
+              <div
+                // className={
+                //   y.BoarderRight === -1 ? `border-end-3 border-danger` : ""
+                // }
+                className="border border-warning"
+                style={{
+                  float: "left",
+                  display: "flex",
+                  flexDirection: "column",
+                  flexWrap: "wrap",
+                  width: `calc(100%*(${y.Length}/${dat.Total}))`,
+                }}
+              >
+                <div>{y.No}</div>
                 {[...Array(8).keys()].map((_, i) => {
                   return (
                     <DropZone
                       items={dat.Ships}
                       scale={size.scale}
                       doc={y}
-                      id={i}
-                      len={dat.Docks.length}
+                      id={7 - i}
+                      len={dat.Total}
                     />
                   );
                 })}
@@ -86,7 +88,6 @@ function DragSight({ dat, box, img, pos }) {
             );
           })}
         </div>
-        {/* </div> */}
       </div>
     </div>
   );

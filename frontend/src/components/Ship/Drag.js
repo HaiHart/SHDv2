@@ -3,6 +3,7 @@ import { useDrag } from "react-dnd";
 import Tooltip from "react-bootstrap/Tooltip";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import { Popover } from "react-bootstrap";
+import { ReactComponent as MyIcon } from "../../ship.svg";
 
 function Drag({
   Iden,
@@ -115,22 +116,36 @@ function Drag({
           setShow(!show);
         }}
         style={{
-          backgroundColor: name !== "x" ? "black" : "gray",
-          // color: "white",
-          // backgroundColor:"black",
-          color: name !== "x" ? "white" : "black",
+          backgroundColor: name !== "x" ? "white" : "gray",
+          // color: name !== "x" ? "black" : "black",
           visibility: isDragging ? "hidden" : "",
           text_align: name !== "x" ? "justify" : "center",
-          width: put?String("calc(100%/6 *("+String(len)+"/"+String(200)+"))"):"calc(100% *("+String(len)+"/"+String(200)+"))",
-          height: put?"30%":"100%",
-          // width: "9rem",
-          // height: "4rem",
+          // width: put
+          //   ? String("calc(100%/6 *(" + String(len) + "/" + String(200) + "))")
+          //   : "calc(100% *(" + String(len) + "/" + String(200) + "))",
+          with: "100%",
+          height: put ? "30%" : "100%",
           overflowX: "visible",
-          maxWidth:"none !important",
+          maxWidth: "none !important",
         }}
         ref={draggable ? drag : {}}
       >
-        {name !== "x" ? Iden + " " + name : "X"}
+        {/* <div style={{ zIndex: "900" }}></div> */}
+        <MyIcon
+          
+          style={{
+            width: "100%",
+            height: "100%",
+          }}
+        ></MyIcon>
+        <div
+          style={{
+            position: "relative",
+            zIndex: "1",
+          }}
+        >
+          {name !== "x" ? Iden + " " + name : "X"}
+        </div>
       </div>
     </OverlayTrigger>
   );

@@ -43,7 +43,7 @@ function DragDrop() {
   useEffect(() => {
     window.go.main.Basic.Flip("yes", Number(0)).then((data) => {
       setData(data);
-      console.log(dat)
+      console.log(dat);
     });
     window.go.main.Basic.GetImageFile().then((res) => {
       setPos({
@@ -100,62 +100,25 @@ function DragDrop() {
   return (
     <div
       className="container-fluid "
-      style={
-        {
-          // display: "flex",
-          // flex: "2",
-          // flexWrap: "wrap",
-          // flexDirection: "row",
-          height: "100%",
-        }
-      }
+      style={{
+        height: "100%",
+      }}
     >
       <div className="row">
         <div className="col-10">
-          <div
-            className="row"
-            style={{
-              // alignSelf: "flex-start",
-              // width: "100%",
-              // height: "100%",
-            }}
-          >
+          <div className="row">
             <div className="col-md">
-              <div
-                className="List row border border-primary rounded"
-                style={
-                  {
-                    // border: "0.5rem solid rgba(255, 0, 0, 0.05)",
-                    // height: "6rem",
-                  }
-                }
-              >
+              <div className="List row border border-primary rounded">
                 <WaitZone items={dat.Rv} />
               </div>
               <div>
                 ------------------------------------------------------------------------------------------------------------------------------------
               </div>
-              <div
-                style={
-                  {
-                    // display: "flex",
-                    // flexWrap: "wrap",
-                    // flexDirection: "row",
-                    // gap: "10px",
-                  }
-                }
-              >
+              <div>
                 <label>Change number of row, colum input</label>
                 <div
                   className="input-group mb-2 "
                   label="Change number of row, colum input"
-                  style={
-                    {
-                      // display: "flex",
-                      // flexWrap: "wrap",
-                      // flexDirection: "column",
-                    }
-                  }
                 >
                   <input
                     className="form-control"
@@ -206,16 +169,7 @@ function DragDrop() {
                     }}
                   />
                 </div>
-                <div
-                  className="input-group mb-2"
-                  style={
-                    {
-                      // display: "flex",
-                      // flexWrap: "wrap",
-                      // flexDirection: "column",
-                    }
-                  }
-                >
+                <div className="input-group mb-2">
                   <button
                     type="button"
                     className="btn btn-primary input-group-prepend"
@@ -260,16 +214,7 @@ function DragDrop() {
                     down
                   </button>
                 </div>
-                <div
-                  className="input-group mb-3"
-                  style={
-                    {
-                      // display: "flex",
-                      // flexWrap: "wrap",
-                      // flexDirection: "column",
-                    }
-                  }
-                >
+                <div className="input-group mb-3">
                   <button
                     type="button"
                     className="btn btn-primary input-group-prepend"
@@ -316,25 +261,11 @@ function DragDrop() {
                   </button>
                 </div>
                 <div>
-                  <div
-                    className="row"
-                    style={
-                      {
-                        // display: "flex",
-                        // flexWrap: "wrap",
-                        // flexDirection: "column",
-                      }
-                    }
-                  >
+                  <div className="row">
                     <input
                       className="col"
                       type="file"
                       name="myImage"
-                      style={
-                        {
-                          // width: "25%",
-                        }
-                      }
                       onChange={(event) => {
                         setImge(event.target.files[0]);
                       }}
@@ -363,9 +294,11 @@ function DragDrop() {
                       type="button"
                       className="btn btn-primary col mb-2"
                       onClick={() => {
-                        window.go.main.Basic.Flip("yes", Number(0)).then((data) => {
-                          setData(data);
-                        });
+                        window.go.main.Basic.Flip("yes", Number(0)).then(
+                          (data) => {
+                            setData(data);
+                          }
+                        );
                       }}
                     >
                       Reload

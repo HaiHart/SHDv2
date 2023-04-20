@@ -5,12 +5,15 @@ import DragDrop from "./DropAndDrag";
 
 function ShipMold() {
   return (
-    <div className="bg-light" style={{
-      // height: '1080px'
-    }}>
-    <DndProvider backend={HTML5Backend}>
-      <DragDrop />
-    </DndProvider>
+    <div
+      className="bg-light"
+      style={{
+        height: "100vh",
+      }}
+    >
+      <DndProvider backend={HTML5Backend}>
+        <DragDrop />
+      </DndProvider>
     </div>
   );
 }
