@@ -331,30 +331,30 @@ func (s *ShipStruct) setShip(doc int, name string, idx int) {
 		s.Docks[doc].ShipList = temp
 		return
 	}
-	if s.Docks[doc].ShipList[idx] == "" {
-		s.Docks[doc].ShipList[idx] = name
-		return
-	}
+	// if s.Docks[doc].ShipList[idx] == "" {
+	// 	s.Docks[doc].ShipList[idx] = name
+	// 	return
+	// }
 	s.Docks[doc].ShipList = append(s.Docks[doc].ShipList[:idx+1], s.Docks[doc].ShipList[idx:]...)
 	s.Docks[doc].ShipList[idx] = name
-	i := s.Docks[doc].BoarderRight
-	for i != -1 {
-		for rv, j := range s.Docks[i].ShipList {
-			checkpoint := false
-			for _, k := range s.Docks[doc].ShipList[idx+1:] {
-				if j == k {
-					s.setShip(int(i), j, rv+1)
-					checkpoint = true
-					break
-				}
-			}
-			if checkpoint {
+	// i := s.Docks[doc].BoarderRight
+	// for i != -1 {
+	// 	for rv, j := range s.Docks[i].ShipList {
+	// 		checkpoint := false
+	// 		for _, k := range s.Docks[doc].ShipList[idx+1:] {
+	// 			if j == k {
+	// 				s.setShip(int(i), j, rv+1)
+	// 				checkpoint = true
+	// 				break
+	// 			}
+	// 		}
+	// 		if checkpoint {
 
-				break
-			}
-		}
-		i = s.Docks[i].BoarderRight
-	}
+	// 			break
+	// 		}
+	// 	}
+	// 	i = s.Docks[i].BoarderRight
+	// }
 
 }
 

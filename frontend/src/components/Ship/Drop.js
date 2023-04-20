@@ -2,7 +2,7 @@ import React from "react";
 import { useDrop } from "react-dnd";
 import Drag from "./Drag";
 
-function DropZone({ items, id, scale, doc }) {
+function DropZone({ items, id, scale, doc, len }) {
   const [{ isOver }, drop] = useDrop(() => ({
     accept: "image",
     drop: (item) => addItem(item.Name),
@@ -25,12 +25,13 @@ function DropZone({ items, id, scale, doc }) {
 
   return (
     <div
-      className="Drop row border border-danger border-3"
+      className="Drop row border border-danger border-1"
       style={{
         // border: isOver
         //   ? "0.1rem solid rgba(255, 0, 0, 0.05)"
         //   : "0.1rem solid yellow",
-        width: "11rem",
+        // width: "11rem",
+        width:"calc(100%/6*("+String(doc.Length)+"/"+String(200)+")-2%)",
         // height: String(1/8)+"%",
         height: "5rem",
         color: "blue",
@@ -39,6 +40,7 @@ function DropZone({ items, id, scale, doc }) {
         background: "rgba(255, 255, 255, 0.0 )",
         // opacity:"0.0",
         // transform: `scale(${scale})`,
+        maxWidth:"none !important",
       }}
       ref={drop}
     >

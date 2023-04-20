@@ -28,35 +28,33 @@ function DragSight({ dat, box, img, pos }) {
         img !== null
           ? `url(${URL.createObjectURL(img)})`
           : "url('http://localhost:4000/img')",
-      backgroundPosition: `${pos.x}px ${pos.y}px`,
-      backgroundSize:"auto 100%",
-      backgroundRepeat:"no-repeat",
+      // backgroundPosition: `${pos.x}px ${pos.y}px`,
+      backgroundSize: "100% 100%",
+      backgroundRepeat: "no-repeat",
       width: "100%",
     };
   };
 
   return (
     <div style={getBg()}>
-      <div className="border border-success border-3"
+      <div
+        className="border border-success border-3"
         onWheelCapture={ZoomWheel}
         style={{
           height: "100%",
           overflowX: "scroll",
           overflowY: "scroll",
-          
         }}
       >
         <div
           style={{
-            height: "100%",
-            width: "100%",
             display: "flex",
-            flexDirection: "row",
+            flexDirection: "column",
             flexWrap: "wrap",
-            justifyContent: "space-evenly",
-            transformOrigin: "0 0",
-            // transform: `scale(${size.scale})`,
-            paddingTop: `calc(5rem)`,
+            transformOrigin: `${pos.x}rem ${pos.y}rem`,
+            transform: `scale(${size.scale})`,
+            width: "fit-content",
+            height: "fit-content",
           }}
         >
           {[...Array(box.y).keys()].map((_, y) => {
@@ -68,11 +66,16 @@ function DragSight({ dat, box, img, pos }) {
                   display: "flex",
                   flexDirection: "row",
                   flexWrap: "wrap",
-                  justifyContent: "space-evenly",
                 }}
               >
                 {[...Array(box.x).keys()].map((_, i) => {
-                  return <DropZone items={dat.Rv} id={Number(i + y *box.x)} scale={size.scale} />;
+                  return (
+                    <DropZone
+                      items={dat.Rv}
+                      id={Number(i + y * box.x)}
+                      scale={size.scale}
+                    />
+                  );
                 })}
               </div>
             );

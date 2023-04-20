@@ -43,8 +43,8 @@ function DragSight({ dat, box, img, pos }) {
         style={{
           height: "100%",
           width: "100%",
-          overflowX: "scroll",
-          overflowY: "scroll",
+          overflowX: "scroll !important",
+          overflowY: "scroll !important",
         }}
       >
         {/* <div className="container-fluid"
@@ -58,13 +58,19 @@ function DragSight({ dat, box, img, pos }) {
             paddingTop: `calc(5rem)`,
           }}
         > */}
-        <div className="row">
+        <div
+          className="row"
+          style={{
+            height: "100%",
+            width: "100%",
+            overflowX: "scroll !important",
+            overflowY: "scroll !important",
+          }}
+        >
           {dat.Docks.map((y, _) => {
             return (
               <div className="col-2">
-                <div className="row">
-                  {y.No}
-                </div>
+                <div className="row">{y.No}</div>
                 {[...Array(8).keys()].map((_, i) => {
                   return (
                     <DropZone
@@ -72,6 +78,7 @@ function DragSight({ dat, box, img, pos }) {
                       scale={size.scale}
                       doc={y}
                       id={i}
+                      len={dat.Docks.length}
                     />
                   );
                 })}

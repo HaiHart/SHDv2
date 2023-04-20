@@ -106,7 +106,7 @@ function DragDrop() {
           // flex: "2",
           // flexWrap: "wrap",
           // flexDirection: "row",
-          // height: "100hv",
+          height: "100%",
         }
       }
     >
@@ -115,9 +115,9 @@ function DragDrop() {
           <div
             className="row"
             style={{
-              alignSelf: "flex-start",
-              width: "100%",
-              height: "100%",
+              // alignSelf: "flex-start",
+              // width: "100%",
+              // height: "100%",
             }}
           >
             <div className="col-md">

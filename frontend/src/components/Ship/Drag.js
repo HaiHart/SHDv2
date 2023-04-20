@@ -121,12 +121,12 @@ function Drag({
           color: name !== "x" ? "white" : "black",
           visibility: isDragging ? "hidden" : "",
           text_align: name !== "x" ? "justify" : "center",
-          // width: put?String("calc(100%/6 *("+String(len)+"/"+String(200)+"))"):"calc(100% *("+String(len)+"/"+String(200)+"))",
-          // height: put?"50%":"100%",
-          width: "9rem",
-          height: "4rem",
+          width: put?String("calc(100%/6 *("+String(len)+"/"+String(200)+"))"):"calc(100% *("+String(len)+"/"+String(200)+"))",
+          height: put?"30%":"100%",
+          // width: "9rem",
+          // height: "4rem",
           overflowX: "visible",
-          // maxWidth:"none !important",
+          maxWidth:"none !important",
         }}
         ref={draggable ? drag : {}}
       >

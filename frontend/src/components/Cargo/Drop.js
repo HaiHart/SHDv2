@@ -38,7 +38,7 @@ function DropZone({ items, id, scale}) {
         alignSelf: "flex-start",
         background: "rgba(255, 255, 255, 0.0 )",
         // opacity:"0.0",
-        transform: `scale(${scale})`,
+        // transform: `scale(${scale})`,
       }}
       ref={drop}
     >
