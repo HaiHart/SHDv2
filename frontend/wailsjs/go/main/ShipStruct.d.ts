@@ -5,4 +5,6 @@ export function Initial():Promise<any>;
 
 export function PlaceShip(arg1:number,arg2:string):Promise<void>;
 
+export function RemoveImage():Promise<string>;
+
 export function SetTime(arg1:string,arg2:string,arg3:string):Promise<void>;

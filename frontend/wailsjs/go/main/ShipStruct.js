@@ -10,6 +10,10 @@ export function PlaceShip(arg1, arg2) {
   return window['go']['main']['ShipStruct']['PlaceShip'](arg1, arg2);
 }
 
+export function RemoveImage() {
+  return window['go']['main']['ShipStruct']['RemoveImage']();
+}
+
 export function SetTime(arg1, arg2, arg3) {
   return window['go']['main']['ShipStruct']['SetTime'](arg1, arg2, arg3);
 }

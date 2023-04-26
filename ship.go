@@ -60,7 +60,7 @@ type ShipStruct struct {
 }
 
 func (s *ShipStruct) imgLoader(w http.ResponseWriter, r *http.Request) {
-	var Path = "./" + "image_ship.jpg"
+	var Path = "./" + "imageShip.jpg"
 	img, err := ioutil.ReadFile(Path)
 	if err != nil {
 		Log <- fmt.Sprintf("%v", err)
@@ -83,7 +83,7 @@ func (s *ShipStruct) imgUpload(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("Uploaded File: %+v\n", handler.Filename)
 	fmt.Printf("File Size: %+v\n", handler.Size)
 	fmt.Printf("MIME Header: %+v\n", handler.Header)
-	tmpFile, err := os.Create("./image_ship.jpg")
+	tmpFile, err := os.Create("./imageShip.jpg")
 	if err != nil {
 		return
 	}
@@ -110,14 +110,21 @@ func (s *ShipStruct) runServer(wg *sync.WaitGroup) {
 	defer wg.Done()
 	wg.Add(1)
 	r := mx.NewRouter()
-	r.HandleFunc("/img", imgLoader)
-	r.HandleFunc("/Conn", checkConn)
-	r.HandleFunc("/save", imgUpload)
-	http.Handle("/", r)
-	err := http.ListenAndServe(":4040", nil)
+	r.HandleFunc("/img", s.imgLoader)
+	r.HandleFunc("/Conn", s.checkConn)
+	r.HandleFunc("/save", s.imgUpload)
+	// http.Handle("/", r)
+	err := http.ListenAndServe(":4040", r)
 	if err != nil {
 		fmt.Println(err)
 	}
+}
+
+func (s *ShipStruct) RemoveImage() string {
+	if err := os.Remove("./image_ship.jpg"); err != nil {
+		return fmt.Sprintln(err)
+	}
+	return "Success"
 }
 
 func (s *ShipStruct) startup(ctx context.Context) {
@@ -134,7 +141,7 @@ func (s *ShipStruct) startup(ctx context.Context) {
 	}()
 	go func() {
 		var wg sync.WaitGroup
-		// go RunServer(&wg)
+		go s.runServer(&wg)
 
 		go func() {
 			var group errgroup.Group
@@ -156,8 +163,8 @@ func (s *ShipStruct) startup(ctx context.Context) {
 func (s *ShipStruct) connectServer() {
 	var opts []grpc.DialOption
 	opts = append(opts, grpc.WithTransportCredentials(insecure.NewCredentials()))
-	conn, err := grpc.Dial(fmt.Sprintf("localhost:%v", 8050), opts...)
-	// conn, err := grpc.Dial(s.IP, opts...)
+	// conn, err := grpc.Dial(fmt.Sprintf("localhost:%v", 8050), opts...)
+	conn, err := grpc.Dial(s.IP, opts...)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -523,7 +530,7 @@ func (s *ShipStruct) Initial() *ShipStruct {
 	return s
 }
 
-func NewShipStruct() *ShipStruct {
+func NewShipStruct(Ip string) *ShipStruct {
 	return &ShipStruct{
 		Counter: 0,
 		Ships: []Ship{
@@ -621,6 +628,7 @@ func NewShipStruct() *ShipStruct {
 		Log:          make([]string, 0),
 		ctx:          context.Background(),
 		storeCommand: make(chan pb.PlaceShip),
+		IP: Ip,
 	}
 
 }

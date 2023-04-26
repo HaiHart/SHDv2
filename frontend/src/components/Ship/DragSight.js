@@ -23,13 +23,13 @@ function DragSight({ dat, box, img, pos }) {
 
   const getBg = () => {
     return {
-      height: "100%",
+      // height: "100%",
       backgroundImage:
         img !== null
           ? `url(${URL.createObjectURL(img)})`
           : "url('http://localhost:4040/img')",
-      backgroundPosition: `${pos.x}px ${pos.y}px`,
-      backgroundSize: "auto 100%",
+      // backgroundPosition: `${pos.x}px ${pos.y}px`,
+      backgroundSize: "100% 100%",
       backgroundRepeat: "no-repeat",
       width: "100%",
     };
@@ -49,23 +49,25 @@ function DragSight({ dat, box, img, pos }) {
       >
         <div
           style={{
-            // display: "flex",
-            // flexDirection: "row",
-            // flexWrap: "wrap",
+            position: "relative",
+            
             width: "100%",
             height: "100%",
-            transform: `scale(${size.scale})`,
+            display: "flex",
+            flexDirection: "row",
+            flexWrap: "wrap",
+            // transform: `scale(${size.scale}) translate((${size.scale-1}%), ${size.scale-1}%)`,
           }}
         >
           {dat.Docks.map((y, _) => {
             return (
               <div
-                // className={
-                //   y.BoarderRight === -1 ? `border-end-3 border-danger` : ""
-                // }
-                className="border border-warning"
+                className={
+                   `${y.BoarderRight === -1 ?" border-end border-danger border-3": ""} ` 
+                }
+                // className="border border-warning"
                 style={{
-                  float: "left",
+                  // float: "left",
                   display: "flex",
                   flexDirection: "column",
                   flexWrap: "wrap",

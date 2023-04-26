@@ -1,6 +1,11 @@
 package main
 
-import "context"
+import (
+	"context"
+	"encoding/json"
+	"io/ioutil"
+	"os"
+)
 
 type App struct {
 	basic *Basic
@@ -8,9 +13,22 @@ type App struct {
 }
 
 func NewApp() *App {
+
+	jsonFile, err := os.Open("./ShipSerCon.json")
+	if err != nil{
+		return nil
+	}
+	defer jsonFile.Close()
+	content, err := ioutil.ReadAll(jsonFile)
+	if err != nil {
+		return nil
+	}
+
+	var temp Position
+	json.Unmarshal(content, &temp)
 	rv := &App{
 		basic: NewBasic(),
-		ship:  NewShipStruct(),
+		ship:  NewShipStruct(temp.ToIP),
 	}
 	return rv
 }

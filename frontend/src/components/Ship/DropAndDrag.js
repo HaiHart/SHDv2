@@ -3,7 +3,7 @@ import * as Wails from "../../wailsjs/runtime";
 import WaitZone from "./Wait";
 import Log from "./Log";
 import DragSight from "./DragSight";
-
+import Axios from "axios";
 // TODO: set some way to zoom only the Drop zone
 // also fine some way to be able to update dropzone size
 function DragDrop() {
@@ -30,7 +30,7 @@ function DragDrop() {
   const [pos, setPos] = useState({
     x: 0,
     y: 0,
-    path: "http://localhost:4040/img",
+    path: "http://localhost:4040/Ship/img",
     cur_name: "",
   });
 
@@ -47,6 +47,23 @@ function DragDrop() {
       setData(a);
     });
   }, []);
+
+  const saveCon = (e) => {
+    e.preventDefault();
+
+    if (img === null) {
+      return;
+    }
+    const formData = new FormData();
+    formData.append("Img", img);
+    try {
+      Axios.post("http://localhost:4040/save", formData).then((res) => {
+        alert(res)
+      });
+    } catch (error) {
+      alert(error);
+    }
+  };
 
   return (
     <div
@@ -65,18 +82,11 @@ function DragDrop() {
               <div>
                 ------------------------------------------------------------------------------------------------------------------------------------
               </div>
-              {/* <div>
+              <div>
                 <label>Change number of row, colum input</label>
-                <div
+                {/* <div
                   className="input-group mb-2 "
                   label="Change number of row, colum input"
-                  style={
-                    {
-                      // display: "flex",
-                      // flexWrap: "wrap",
-                      // flexDirection: "column",
-                    }
-                  }
                 >
                   <input
                     className="form-control"
@@ -126,8 +136,8 @@ function DragDrop() {
                       });
                     }}
                   />
-                </div>
-                <div className="input-group mb-2">
+                </div> */}
+                {/* <div className="input-group mb-2">
                   <button
                     type="button"
                     className="btn btn-primary input-group-prepend"
@@ -171,8 +181,8 @@ function DragDrop() {
                   >
                     down
                   </button>
-                </div>
-                <div className="input-group mb-3">
+                </div> */}
+                {/* <div className="input-group mb-3">
                   <button
                     type="button"
                     className="btn btn-primary input-group-prepend"
@@ -217,27 +227,13 @@ function DragDrop() {
                   >
                     right
                   </button>
-                </div>
+                </div> */}
                 <div>
-                  <div
-                    className="row"
-                    style={
-                      {
-                        // display: "flex",
-                        // flexWrap: "wrap",
-                        // flexDirection: "column",
-                      }
-                    }
-                  >
+                  <div className="row">
                     <input
                       className="col"
                       type="file"
                       name="myImage"
-                      style={
-                        {
-                          // width: "25%",
-                        }
-                      }
                       onChange={(event) => {
                         setImge(event.target.files[0]);
                       }}
@@ -248,7 +244,7 @@ function DragDrop() {
                       onClick={(e) => {
                         e.preventDefault();
                         setImge(null);
-                        window.go.main.Basic.RemoveImage().then((res) => {
+                        window.go.main.ShipStruct.RemoveImage().then((res) => {
                           console.log(res);
                         });
                       }}
@@ -258,33 +254,20 @@ function DragDrop() {
                     <button
                       type="button"
                       className="btn btn-primary col mb-2"
-                      // onClick={saveCon}
+                      onClick={saveCon}
                     >
                       Re-Config
                     </button>
-                    <button
-                      type="button"
-                      className="btn btn-primary col mb-2"
-                      onClick={() => {
-                        window.go.main.Basic.Flip("yes", Number(0)).then(
-                          (data) => {
-                            setData(data);
-                          }
-                        );
-                      }}
-                    >
-                      Reload
-                    </button>
                   </div>
                 </div>
-              </div> */}
+              </div>
               <div>
                 ------------------------------------------------------------------------------------------------------------------------------------
               </div>
               <div
                 style={{
-                  height: "100%",
-                  width:"100%"
+                  // height: "100%",
+                  width: "100%",
                 }}
               >
                 <DragSight dat={dat} box={size} img={img} pos={pos} />

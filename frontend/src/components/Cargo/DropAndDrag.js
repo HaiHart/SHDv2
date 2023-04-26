@@ -87,9 +87,9 @@ function DragDrop() {
       ).then((res) => {
         alert(res);
       });
-    } catch (error) {
-      console.log(error);
-    } finally {
+      } catch (error) {
+        console.log(error);
+      } finally {
       setPos({
         ...pos,
         cur_name: img.name,

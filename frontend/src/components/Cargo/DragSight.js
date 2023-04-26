@@ -51,8 +51,7 @@ function DragSight({ dat, box, img, pos }) {
             display: "flex",
             flexDirection: "column",
             flexWrap: "wrap",
-            transformOrigin: `${pos.x}rem ${pos.y}rem`,
-            transform: `scale(${size.scale})`,
+            transform: `scale(${size.scale}) translate(${pos.x}px,${pos.y}px)` ,
             width: "fit-content",
             height: "fit-content",
           }}
