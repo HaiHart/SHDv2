@@ -10,8 +10,8 @@ export function PlaceShip(arg1, arg2) {
   return window['go']['main']['ShipStruct']['PlaceShip'](arg1, arg2);
 }
 
-export function RemoveShip(arg1) {
-  return window['go']['main']['ShipStruct']['RemoveShip'](arg1);
+export function RemoveImage() {
+  return window['go']['main']['ShipStruct']['RemoveImage']();
 }
 
 export function SetTime(arg1, arg2, arg3) {

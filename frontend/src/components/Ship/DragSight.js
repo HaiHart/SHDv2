@@ -56,7 +56,6 @@ function DragSight({ dat, box, img, pos }) {
             display: "flex",
             flexDirection: "row",
             flexWrap: "wrap",
-            // transform: `scale(${size.scale}) translate((${size.scale-1}%), ${size.scale-1}%)`,
           }}
         >
           {dat.Docks.map((y, _) => {

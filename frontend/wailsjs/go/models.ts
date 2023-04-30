@@ -12,6 +12,7 @@ export namespace main {
 	        this.version = source["version"];
 	    }
 	}
+	
 	export class ShipStruct {
 	    version: number;
 	

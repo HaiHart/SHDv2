@@ -10,8 +10,8 @@ export function FetchFromServer() {
   return window['go']['main']['Basic']['FetchFromServer']();
 }
 
-export function Flip(arg1, arg2) {
-  return window['go']['main']['Basic']['Flip'](arg1, arg2);
+export function Flip(arg1, arg2, arg3, arg4) {
+  return window['go']['main']['Basic']['Flip'](arg1, arg2, arg3, arg4);
 }
 
 export function GetImageFile() {
