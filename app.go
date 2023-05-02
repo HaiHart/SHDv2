@@ -98,6 +98,7 @@ type Basic struct {
 	Bays         int
 	Rows         int
 	Tiers        int
+	bay          int
 	signal       chan string
 	IP           string
 	client       pb.ComClient
@@ -147,6 +148,7 @@ func (b *Basic) FetchFromServer() error {
 			},
 		})
 	}
+	b.Log = make([]string, 0)
 	for _, v := range ShipList.Log {
 		b.Log = append(b.Log, v)
 	}
@@ -260,7 +262,31 @@ func (b *Basic) startup(ctx context.Context) {
 
 }
 
-func (b *Basic) Flip(x string, bay int, row int, tier int) *Basic {
+func (b *Basic) checkFlip(x int, bay int, row int, tier int) bool {
+
+	for _, v := range b.Rv {
+		if v.Iden == x {
+			if v.Cor.Bay == bay && v.Cor.Row == row && v.Cor.Tier == tier {
+				return false
+			}
+		}
+	}
+
+	for _, v := range b.Inval {
+		if v.Bay == bay && v.Row == row && v.Tier == tier {
+			return false
+		}
+	}
+
+	return true
+}
+
+func (b*Basic)Bay(bay int) {
+	b.bay=bay
+}
+
+// func (b *Basic) Flip(x string, bay int, row int, tier int) *Basic {
+func (b *Basic) Flip(x string, id int) *Basic {
 	fmt.Println(x)
 	if x == "yes" {
 		return b
@@ -268,6 +294,26 @@ func (b *Basic) Flip(x string, bay int, row int, tier int) *Basic {
 	index, err := strconv.Atoi(x)
 	if err != nil {
 		fmt.Printf("%v", err)
+		return b
+	}
+
+	// bay := id / (b.Rows * b.Tiers)
+
+	bay:=b.bay
+
+	step := id % (b.Rows * b.Tiers)
+
+	tier := step / b.Rows
+
+	row := step % b.Rows
+
+	if id < 0 {
+		bay = -1
+		row = -1
+		tier = -1
+	}
+
+	if b.checkFlip(index, bay, row, tier) == false {
 		return b
 	}
 
@@ -338,7 +384,7 @@ func (b *Basic) Flip(x string, bay int, row int, tier int) *Basic {
 		Err:      "None",
 	}
 	b.storeCommand <- ls
-	fmt.Println("Here!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+	fmt.Println("Here!!!!!!!!!!!!!!!!!!!!!!!!!!! ", bay, row, tier)
 	return b
 }
 
@@ -454,7 +500,7 @@ func (b *Basic) GetImageFile() interface{} {
 	if err != nil {
 		fmt.Println(err)
 		return Position{
-			Name: "",
+			Name:     "",
 			ShipName: "",
 			XPos:     0,
 			YPos:     0,
@@ -467,7 +513,7 @@ func (b *Basic) GetImageFile() interface{} {
 	content, err := ioutil.ReadAll(jsonFile)
 	if err != nil {
 		return Position{
-			Name: "",
+			Name:     "",
 			ShipName: "",
 			XPos:     0,
 			YPos:     0,
@@ -555,6 +601,7 @@ func NewBasic() *Basic {
 		Rows:         0,
 		Bays:         0,
 		Tiers:        0,
+		bay:          0,
 		signal:       make(chan string),
 		Log:          make([]string, 1),
 		ctx:          context.Background(),

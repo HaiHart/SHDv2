@@ -1,25 +1,56 @@
 import React, { useState, useEffect } from "react";
-// import * as Wails from "@wailsapp/runtime";
 import * as Wails from "../../wailsjs/runtime";
 import WaitZone from "./Wait";
 import Log from "./Log";
 import DragSight from "./DragSight";
 import Axios from "axios";
-// import { Flip } from "../wailsjs/go/main/Basic";
 
 // TODO: set some way to zoom only the Drop zone
 // also fine some way to be able to update dropzone size
 function DragDrop() {
   const [dat, setData] = useState({
-    Rv: [],
+    ShipName: String,
+    Name: String,
+    Rv: [
+      {
+        Name: String,
+        Cor: {
+          Bay: Number,
+          Row: Number,
+          Tier: Number,
+        },
+        Iden: Number,
+        Type: Number,
+        Key: Number,
+        Detail: {
+          From: String,
+          AtTime: String,
+          By: String,
+          Owner: String,
+        },
+      },
+    ],
     version: -1,
     Log: [],
+    Inval: [
+      {
+        Bay: Number,
+        Row: Number,
+        Tier: Number,
+      },
+    ],
+    Bays: Number,
+    Rows: Number,
+    Tier: Number,
   });
   const [size, setSize] = useState({
-    x: 8,
-    y: 1,
+    x: 0,
+    y: 0,
+    z: 0,
   });
   const [img, setImge] = useState(null);
+
+  const [zPole, SetZ] = useState(0);
 
   const [pos, setPos] = useState({
     x: 0,
@@ -37,22 +68,24 @@ function DragDrop() {
   Wails.EventsOn("List", (ata) => {
     if (dat.version !== ata.version) {
       setData(ata);
+      console.log(ata)
     }
   });
 
   useEffect(() => {
     window.go.main.Basic.Flip("yes", Number(0)).then((data) => {
       setData(data);
+      setSize({
+        x: data.Rows,
+        y: data.Tiers,
+        z: data.Bays,
+      });
       console.log(dat);
     });
     window.go.main.Basic.GetImageFile().then((res) => {
       setPos({
         x: res.x,
         y: res.y,
-      });
-      setSize({
-        x: res.col,
-        y: res.row,
       });
     });
   }, []);
@@ -87,9 +120,9 @@ function DragDrop() {
       ).then((res) => {
         alert(res);
       });
-      } catch (error) {
-        console.log(error);
-      } finally {
+    } catch (error) {
+      console.log(error);
+    } finally {
       setPos({
         ...pos,
         cur_name: img.name,
@@ -109,14 +142,43 @@ function DragDrop() {
           <div className="row">
             <div className="col-md">
               <div className="List row border border-primary rounded">
-                <WaitZone items={dat.Rv} />
+                <WaitZone items={dat.Rv} bay={zPole} />
               </div>
               <div>
                 ------------------------------------------------------------------------------------------------------------------------------------
               </div>
               <div>
-                <label>Change number of row, colum input</label>
-                <div
+                <label>
+                  Currently on {zPole}/{size.z - 1} Bay on Ship {dat.ShipName}{" "}
+                  by {dat.Name}{" "}
+                  <button
+                    className="btn btn-primary"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      if (zPole === size.z - 1) {
+                        return;
+                      }
+                      window.go.main.Basic.Bay(Number(zPole+1)).then()
+                      SetZ(zPole + 1);
+                    }}
+                  >
+                    Next Bay
+                  </button>
+                  <button
+                    className="btn btn-primary"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      if (zPole === 0) {
+                        return;
+                      }
+                      window.go.main.Basic.Bay(Number(zPole-1)).then()
+                      SetZ(zPole - 1);
+                    }}
+                  >
+                    Prev Bay
+                  </button>
+                </label>
+                {/* <div
                   className="input-group mb-2 "
                   label="Change number of row, colum input"
                 >
@@ -168,7 +230,7 @@ function DragDrop() {
                       });
                     }}
                   />
-                </div>
+                </div> */}
                 <div className="input-group mb-2">
                   <button
                     type="button"
@@ -314,7 +376,7 @@ function DragDrop() {
                   height: "100%",
                 }}
               >
-                <DragSight dat={dat} box={size} img={img} pos={pos} />
+                <DragSight dat={dat} box={size} img={img} pos={pos} zIndex={zPole} />
               </div>
             </div>
           </div>

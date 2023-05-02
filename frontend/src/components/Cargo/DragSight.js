@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import DropZone from "./Drop";
 
-function DragSight({ dat, box, img, pos }) {
+function DragSight({ dat, box, img, pos, zIndex }) {
   const [size, setSize] = useState({
     width: 1,
     height: 40,
@@ -51,7 +51,7 @@ function DragSight({ dat, box, img, pos }) {
             display: "flex",
             flexDirection: "column",
             flexWrap: "wrap",
-            transform: `scale(${size.scale}) translate(${pos.x}px,${pos.y}px)` ,
+            transform: `scale(${size.scale}) translate(${pos.x}px,${pos.y}px)`,
             width: "fit-content",
             height: "fit-content",
           }}
@@ -68,11 +68,35 @@ function DragSight({ dat, box, img, pos }) {
                 }}
               >
                 {[...Array(box.x).keys()].map((_, i) => {
+                  if (
+                    dat.Inval.some(
+                      (item) =>
+                        item.Bay === zIndex &&
+                        item.Tier ===box.y- y-1 &&
+                        item.Row === i
+                    )
+                  ) {
+                    return (
+                      <div
+                        style={{
+                          backgroundColor: "DarkGrey",
+                          color: "white",
+                          width: "5rem",
+                          height: "5rem",
+                        }}
+                      >
+                        <span></span>
+                      </div>
+                    );
+                  }
+
                   return (
                     <DropZone
                       items={dat.Rv}
-                      id={Number(i + y * box.x)}
-                      scale={size.scale}
+                      id={(i + (box.y -y-1) * box.x)+zIndex*box.x*box.y}
+                      bay={zIndex}
+                      row={i}
+                      tier={box.y -y-1}
                     />
                   );
                 })}

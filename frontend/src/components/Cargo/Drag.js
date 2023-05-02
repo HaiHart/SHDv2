@@ -37,7 +37,7 @@ function Drag({ Iden, name, draggable, wait, detail }) {
         // className="bg-black "
         id={name}
         style={{
-          backgroundColor: name !=="x" ? "black":"DarkGrey",
+          backgroundColor: name !=="x" ? "black":"Aquamarine",
           color: "white",
           visibility: isDragging ? "hidden" : "",
           text_align: name !=="x"?"justify":"center",

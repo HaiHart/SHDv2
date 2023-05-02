@@ -1,11 +1,8 @@
 import React from "react";
 import { useDrop } from "react-dnd";
 import Drag from "./Drag";
-// import { Flip } from "../wailsjs/go/main/Basic";
 
-function WaitZone({ items }) {
-  // const list = items.filter(ele=>ele.Placed<0)
-
+function WaitZone({ items, bay }) {
   const [{ isOut }, out] = useDrop(() => ({
     accept: "image",
     drop: (item) => outItem(item.Iden),
@@ -17,8 +14,12 @@ function WaitZone({ items }) {
     if (item < 0) {
       return;
     }
-    window.go.main.Basic.Flip(String(item), Number(-1)).then((data) => {
-    });
+    window.go.main.Basic.Flip(
+      String(item),
+      Number(-1),
+      // Number(-1),
+      // Number(-1)
+    ).then((data) => {});
 
     return;
   };
@@ -38,7 +39,12 @@ function WaitZone({ items }) {
       ref={out}
     >
       {items.map((item) => {
-        if (item.Placed < 0) {
+        if (
+          item.Cor.Bay === -1 &&
+          item.Cor.Row === -1 &&
+          item.Cor.Tier === -1 &&
+          item.Type == bay%2
+        ) {
           return (
             <Drag
               draggable={true}
