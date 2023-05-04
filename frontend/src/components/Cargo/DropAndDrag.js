@@ -68,7 +68,8 @@ function DragDrop() {
   Wails.EventsOn("List", (ata) => {
     if (dat.version !== ata.version) {
       setData(ata);
-      console.log(ata)
+      SetZ(ata.CurBay)
+      console.log(ata);
     }
   });
 
@@ -158,11 +159,20 @@ function DragDrop() {
                       if (zPole === size.z - 1) {
                         return;
                       }
-                      window.go.main.Basic.Bay(Number(zPole+1)).then()
+                      window.go.main.Basic.Bay(Number(zPole + 1)).then();
                       SetZ(zPole + 1);
                     }}
                   >
                     Next Bay
+                  </button>
+                  <button
+                    className="btn btn-primary btn-lg"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      window.go.main.Basic.CheckImabalance().then();
+                    }}
+                  >
+                    Get Imbalance Bay
                   </button>
                   <button
                     className="btn btn-primary"
@@ -171,7 +181,7 @@ function DragDrop() {
                       if (zPole === 0) {
                         return;
                       }
-                      window.go.main.Basic.Bay(Number(zPole-1)).then()
+                      window.go.main.Basic.Bay(Number(zPole - 1)).then();
                       SetZ(zPole - 1);
                     }}
                   >
@@ -376,7 +386,13 @@ function DragDrop() {
                   height: "100%",
                 }}
               >
-                <DragSight dat={dat} box={size} img={img} pos={pos} zIndex={zPole} />
+                <DragSight
+                  dat={dat}
+                  box={size}
+                  img={img}
+                  pos={pos}
+                  zIndex={zPole}
+                />
               </div>
             </div>
           </div>

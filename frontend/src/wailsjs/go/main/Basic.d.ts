@@ -6,6 +6,8 @@ export function Bay(arg1:number):Promise<void>;
 
 export function Change(arg1:string,arg2:main.Cordinates):Promise<any>;
 
+export function CheckImabalance():Promise<number>;
+
 export function FetchFromServer():Promise<void>;
 
 export function Flip(arg1:string,arg2:number):Promise<any>;

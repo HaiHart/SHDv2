@@ -4,6 +4,15 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
+	"io/ioutil"
+	"math"
+	"net/http"
+	"os"
+	"strconv"
+	"sync"
+	"time"
+
 	pb "github.com/HaiHart/ShipdockServer/proto"
 	mx "github.com/gorilla/mux"
 	"github.com/wailsapp/wails"
@@ -12,13 +21,6 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/protobuf/types/known/timestamppb"
-	"io"
-	"io/ioutil"
-	"net/http"
-	"os"
-	"strconv"
-	"sync"
-	"time"
 )
 
 // domReady is called after the front-end dom has been loaded
@@ -94,11 +96,12 @@ type Basic struct {
 	Name         string
 	Rv           []Container
 	Log          []string
+	rot          float32
 	Inval        []Cordinates
 	Bays         int
 	Rows         int
 	Tiers        int
-	bay          int
+	CurBay       int
 	signal       chan string
 	IP           string
 	client       pb.ComClient
@@ -127,6 +130,7 @@ func (b *Basic) FetchFromServer() error {
 	b.Bays = int(ShipList.Sizes.Bay)
 	b.Rows = int(ShipList.Sizes.Row)
 	b.Tiers = int(ShipList.Sizes.Tier)
+	b.rot = 40 * float32(b.Tiers)
 	b.Rv = make([]Container, 0)
 	for _, v := range ShipList.List {
 		id, _ := strconv.Atoi(v.Id)
@@ -281,8 +285,50 @@ func (b *Basic) checkFlip(x int, bay int, row int, tier int) bool {
 	return true
 }
 
-func (b*Basic)Bay(bay int) {
-	b.bay=bay
+func (b *Basic) Bay(bay int) {
+	b.CurBay = bay
+}
+
+func (b *Basic) CheckImabalance() string {
+	temp := make(map[int]float32, b.Bays)
+
+	for i := 0; i < b.Bays; i++ {
+		temp[i] = 0
+	}
+
+	for _, i := range b.Rv {
+		if i.Cor.Bay != -1 {
+			w := 40 + i.Type*40
+			if i.Cor.Row <= b.Rows/2 {
+				temp[i.Cor.Bay] += float32(w) * float32(float32(b.Rows/2-i.Cor.Row)/(float32(b.Rows/2)+float32(b.Rows-(b.Rows/2)*2)/2*float32(b.Rows)))
+			}
+			if i.Cor.Row >= b.Rows/2+b.Rows%2 {
+				temp[i.Cor.Bay] -= float32(w) * float32(float32(i.Cor.Row-b.Rows/2+1)/(float32(b.Rows/2)+float32(b.Rows-(b.Rows/2)*2)/2*float32(b.Rows)))
+			}
+		}
+	}
+
+	var max_index int
+
+	var max float64
+
+	// defer fmt.Println(tmp[max_index], max_index)
+
+	for u, v := range temp {
+		if math.Abs(float64(v)) > max {
+			max_index = u
+			max = math.Abs(float64(v))
+		}
+	}
+
+	if temp[max_index] != 0 {
+		b.CurBay = max_index
+		fmt.Println(temp[max_index], max_index)
+		rt.EventsEmit(b.ctx, "List", b)
+		return strconv.Itoa(max_index + 1)
+	}
+
+	return "no"
 }
 
 // func (b *Basic) Flip(x string, bay int, row int, tier int) *Basic {
@@ -299,7 +345,7 @@ func (b *Basic) Flip(x string, id int) *Basic {
 
 	// bay := id / (b.Rows * b.Tiers)
 
-	bay:=b.bay
+	bay := b.CurBay
 
 	step := id % (b.Rows * b.Tiers)
 
@@ -601,7 +647,7 @@ func NewBasic() *Basic {
 		Rows:         0,
 		Bays:         0,
 		Tiers:        0,
-		bay:          0,
+		CurBay:       0,
 		signal:       make(chan string),
 		Log:          make([]string, 1),
 		ctx:          context.Background(),

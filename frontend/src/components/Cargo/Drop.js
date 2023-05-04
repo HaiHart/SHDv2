@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useDrop } from "react-dnd";
 import Drag from "./Drag";
 
-function DropZone({ items, id, bay, row, tier}) {
+function DropZone({ items, id, bay, row, tier }) {
   const [{ isOver }, drop] = useDrop(() => ({
     accept: "image",
     drop: (item) => addItem(item.Iden),
@@ -11,35 +11,31 @@ function DropZone({ items, id, bay, row, tier}) {
     }),
   }));
 
-  const [cor,setCor] =useState({
-    bay:bay,
-    row:row,
-    tier:tier,
-  })
+  const [cor, setCor] = useState({
+    bay: bay,
+    row: row,
+    tier: tier,
+  });
 
-  useEffect(()=>{
-    console.log(bay,row,tier)
+  useEffect(() => {
+    // console.log(bay,row,tier)
     // setCor{{
     //   bay:bay
     // }}
-  },[bay])
+  }, [bay]);
 
   const addItem = (item) => {
     if (item <= 0) {
       return;
     }
-    console.log(bay,row,tier)
+    // console.log(bay,row,tier)
     // window.go.main.Basic.Flip(
     //   String(item),
     //   Number(cor.bay),
     //   Number(cor.row),
     //   Number(cor.tier)
     // ).then((data) => {});
-    window.go.main.Basic.Flip(
-      String(item),
-      Number(id),
-      
-    ).then((data) => {});
+    window.go.main.Basic.Flip(String(item), Number(id)).then((data) => {});
 
     return;
   };
@@ -75,7 +71,6 @@ function DropZone({ items, id, bay, row, tier}) {
             />
           );
         } else {
-          
           return <></>;
         }
       })}

@@ -10,6 +10,10 @@ export function Change(arg1, arg2) {
   return window['go']['main']['Basic']['Change'](arg1, arg2);
 }
 
+export function CheckImabalance() {
+  return window['go']['main']['Basic']['CheckImabalance']();
+}
+
 export function FetchFromServer() {
   return window['go']['main']['Basic']['FetchFromServer']();
 }
