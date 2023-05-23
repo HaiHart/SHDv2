@@ -3,7 +3,7 @@ module changeme
 go 1.18
 
 require (
-	github.com/HaiHart/ShipdockServer v0.0.0-20230430140146-ac82f49c46f1
+	github.com/HaiHart/ShipdockServer v0.0.0-20230512061005-1a0a08516bac
 	github.com/gorilla/mux v1.8.0
 	github.com/wailsapp/wails v1.16.9
 	github.com/wailsapp/wails/v2 v2.4.0

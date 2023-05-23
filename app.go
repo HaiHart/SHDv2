@@ -191,6 +191,9 @@ func (b *Basic) createServerChannel() error {
 				b.streamConn = stream
 				continue
 			}
+			if in.ShipName != b.ShipName{
+				continue
+			}
 			if err != nil {
 				fmt.Println(err)
 			}
@@ -266,11 +269,14 @@ func (b *Basic) startup(ctx context.Context) {
 
 }
 
-func (b *Basic) checkFlip(x int, bay int, row int, tier int) bool {
+func (b *Basic) checkFlip(index int, bay int, row int, tier int) bool {
 
 	for _, v := range b.Rv {
-		if v.Iden == x {
+		if v.Iden == index {
 			if v.Cor.Bay == bay && v.Cor.Row == row && v.Cor.Tier == tier {
+				return false
+			}
+			if v.Name == "x" && bay == -1 {
 				return false
 			}
 		}
@@ -366,6 +372,7 @@ func (b *Basic) Flip(x string, id int) *Basic {
 	var change, change_2 *pb.Container
 	for _, v := range b.Rv {
 		if v.Iden == index {
+			fmt.Println("container place ", v.Cor)
 			change = &pb.Container{
 				Id:   strconv.FormatInt(int64(v.Iden), 10),
 				Name: v.Name,
@@ -428,9 +435,11 @@ func (b *Basic) Flip(x string, id int) *Basic {
 		ShipName: b.ShipName,
 		Swap:     (change_2 != nil),
 		Err:      "None",
+		Name:     b.Name,
 	}
 	b.storeCommand <- ls
 	fmt.Println("Here!!!!!!!!!!!!!!!!!!!!!!!!!!! ", bay, row, tier)
+	fmt.Println("container place ", change.Place)
 	return b
 }
 
