@@ -2,8 +2,8 @@ package main
 
 import (
 	"embed"
-	"log"
 	"github.com/wailsapp/wails/v2/pkg/options/mac"
+	"log"
 
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/logger"
@@ -18,19 +18,14 @@ var assets embed.FS
 var icon []byte
 
 func main() {
-	// Create an instance of the app structure
-	// app := NewApp()
-	basic:= NewBasic()
-
-	// var wg sync.WaitGroup
-	// go logFunc()
-	// go RunServer(&wg)
-	
+	// basic := NewBasic()
+	// ship := NewShipStruct()
+	app:=NewApp()
 	// Create application with options
 	err := wails.Run(&options.App{
-		Title:  "react-template",
-		Width:  1024,
-		Height: 768,
+		Title:             "react-template",
+		Width:             1024,
+		Height:            768,
 		DisableResize:     false,
 		Fullscreen:        false,
 		Frameless:         false,
@@ -38,11 +33,11 @@ func main() {
 		HideWindowOnClose: false,
 		Assets:            assets,
 		LogLevel:          logger.DEBUG,
-		OnStartup:         basic.startup,
-		OnDomReady:        basic.domReady,
-		OnShutdown:        basic.shutdown,
+		OnStartup:         app.startup,
+		OnDomReady:        app.domReady,
+		OnShutdown:        app.shutdown,
 		Bind: []interface{}{
-			basic,
+			app.basic, app.ship,
 		},
 		WindowStartState: options.Maximised,
 		// Windows platform specific options
